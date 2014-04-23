@@ -1,0 +1,23 @@
+This directory holds all c files for navigation purposes. 
+Source build to compile project.
+
+To do:
+Merge, fork, turn detection and handling.
+PRU programming.
+	-Timer interrupt enabling
+	-Timer interrupt handling
+	-Memory location and accessing
+	-Lidar counters
+PRU memory sharing.
+Testing interface.
+	-Prompts for inputs of distances to check functionality.
+Turn decision and indexing.
+
+
+Completed:
+Turning function created in wall_following.c.
+Build file made.
+main.c compiles with wall_following.c.
+wall_following.h has defines for wall_following.c
+Straight wall following algorithm.
+
