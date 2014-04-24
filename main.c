@@ -9,7 +9,8 @@
 * Includes
 */
 #include "wall_following.h"
-
+#include "navigation.h"
+#include "pthread.h"
 /*
 * main
 */
