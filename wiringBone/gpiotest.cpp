@@ -6,8 +6,9 @@ int irForwardLeft, irForwardRight, irBackLeft, irBackRight;
 void readIR(void);
 void setSteeringAngle(int pulsewidth);
 void setCarSpeed(int speed);
-int turn(int x_front, int x_back);
-int calculateDistance(int value);
+int turn(float x_front, float x_back);
+float calculateDistance(float value);
+void navigation(void);
 
 /* defines */
 #define MOTOR_PERIOD	10
@@ -23,40 +24,15 @@ void setup(){
 	setPulseWidth(P9_27,1500);
 	setTimePeriod(P9_41,MOTOR_PERIOD);
 	setDutyPercentage(P9_41,0);
-	delay(5000);
-//	setCarSpeed(30);
+	analogReadResolution(10);
+	delay(15000);
+	setCarSpeed(20);
 }
 
 void loop(){
-/*
-	printf("Enter car speed percentage: ");
-	scanf("%d",&x);
-	setCarSpeed(x);
-	delay(500);
-*/
-/*
-	printf("Enter servo pulse width: ");
-	scanf("%d",&x);
-	setSteeringAngle(x);
-	delay(500);
-*/
-
-	/* Lidar reading test */
-/*	lidar = getPulseWidth(P9_42);
-	printf("%d\n",lidar);
-	delay(10);
-*/
-
-	/* Read all four IRs */
-	readIR();
-//	x = analogRead(AIN0);
-
-	/* Print IR values */
-	printf("Front left: %d, Front right: %d, Back left: %d, Back right: %d\n", irForwardLeft, irForwardRight, irBackLeft, irBackRight);
-//	printf("Analog read: %d\n", x);
-
+	navigation();
 	/* Delay 200ms */
-	delay(200);
+//	delay(200);
 }
 
 void setSteeringAngle(int pulsewidth){
@@ -73,9 +49,9 @@ void setSteeringAngle(int pulsewidth){
 void setCarSpeed(int speed){
 	/* Set car speed */
 	int i = 0;
-	for(i=0; i<=speed;i++){
+	for(i=0;i<=speed;i++){
 		setDutyPercentage(P9_41,i);
-		delay(40);
+		delay(3);
 	}
 }
 
@@ -93,14 +69,47 @@ void readIR(void){
 	irBackRight = analogRead(AIN3);
 }
 
-
-int turn(int x_front, int x_back){
-  int turning_angle;
-  turning_angle = STRAIGHT_ANGLE + (TURNING_FACTOR*(x_front-TURN_DISTANCE) + TURNING_FACTOR*(x_back-TURN_DISTANCE));
-  return turning_angle;
+int turn(float x_front, float x_back){
+  	int turning_angle;
+  	turning_angle = STRAIGHT_ANGLE + (TURNING_FACTOR*(x_front-TURN_DISTANCE) + TURNING_FACTOR*(x_back-TURN_DISTANCE));
+  	return turning_angle;
 }
 
-int calculateDistance(int value){
-  return 2.6867*value*value-15.526*value+25.948;
+float calculateDistance(float value){
+  	return 2.6867*value*value-15.526*value+25.948;
 }
 
+void navigation(void){
+	int turn_angle;
+	float back, front;
+
+	/* Read from IRs */
+	readIR();
+
+	/* Convert to distance */
+	back = calculateDistance(irBackRight*2*1.8/1024);
+	front = cos(0.5236)*calculateDistance(irForwardRight*2*1.8/1024);
+
+	/* Calculate turn angle */
+	turn_angle = turn(front,back);
+
+	/* Update servo */
+	setSteeringAngle(turn_angle);
+}
+
+void testingInterface(void){
+        printf("Enter car speed percentage: ");
+        scanf("%d",&x);
+        setCarSpeed(x);
+        delay(500);
+        printf("Enter servo pulse width: ");
+        scanf("%d",&x);
+        setSteeringAngle(x);
+        delay(500);
+        readIR();
+        x = analogRead(AIN0);
+
+        /* Print IR values */
+      	printf("Analog read: %d\n", x);
+
+}
