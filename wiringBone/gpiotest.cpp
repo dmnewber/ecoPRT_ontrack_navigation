@@ -11,7 +11,7 @@ void navigation(void);
 void testingInterface(void);
 
 /* defines */
-#define MOTOR_PERIOD	10
+#define MOTOR_FREQUENCY	20000
 #define	SERVO_PERIOD	20000
 #define WALL_DISTANCE 	15
 #define TURN_DISTANCE 	13
@@ -22,7 +22,7 @@ void testingInterface(void);
 void setup(){
 	setTimePeriod(P9_27,SERVO_PERIOD);
 	setPulseWidth(P9_27,1500);
-	setTimePeriod(P9_41,MOTOR_PERIOD);
+	setFrequency(P9_41,MOTOR_FREQUENCY);
 	setDutyPercentage(P9_41,0);
 	analogReadResolution(10);
 }
@@ -78,7 +78,7 @@ float calculateDistance(float value){
 void navigation(void){
 	int turn_angle;
 	float back, front;
-	setCarSpeed(20);
+	setCarSpeed(25);
 	while(1){
 		/* Read from IRs */
 		readIR();
