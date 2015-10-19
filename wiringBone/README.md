@@ -4,7 +4,7 @@ Wiring/Arduino style library for BeagleBone Black Platform
 This library contains almost all the core wiring/arduino functions along with some advanced functions.
 This library is intended for quick and easy hardware control on the BeagleBone Black platform.
 All the functions have similar behaviour with the wiring/arduino environment.
-This library uses the power of 'beaglebone-universal-io' device tree overlays to configure the overlay at runtime. 
+This library uses the power of 'beaglebone-universal-io' device tree overlays to configure the overlay at runtime.
 #Features:
 1. Control 65 GPIO pins for digital input/output.
 2. Generate PWM from total 30 pins (6 pins from PWMSS and 24 pins from PRU_ICSS).
@@ -52,9 +52,9 @@ The code should follow the setup() and loop() pattern similar to the wiring/ardu
 In the wiring/arduino environment some functions takes the pin number as a parameter.
 But this library will use pin name instead of pin numbers.
 "Pin" is defined as a structure type and all the pin names are structures in this library.
-For example: In an arduino sketch one may write: 
+For example: In an arduino sketch one may write:
 
-    pinMode(2, OUTPUT); 
+    pinMode(2, OUTPUT);
 But here instead of pin number 2 the pin name has to be given like:
 
     pinMode(P8_10, OUTPUT); or pinMode(P9_14, OUTPUT);
@@ -132,7 +132,7 @@ Functions:
 
 "adcPin" is an enum type which has values from AIN0 to AIN6.
 User can give the pin name as well as the adc pin numbr as a parameter to analogRead().
-For example: 
+For example:
 
     analogRead(AIN3); or analogRead(3);
 analogRead() will return 10 bit adc values.
@@ -169,7 +169,7 @@ Functions:
 Above funtions have similar behaviour with the arduino environment (Refer to documentation on Arduino website).
 There are 4 uart ports available.
 UART1 is defined as Serial, UART2 is defined as Serial1, UART4 is defined as Serial2 and UART5 is defined as Serial3.
-Usage example: 
+Usage example:
 
     Serial.begin(9600);
 To use any UART pin user should change the pin mode to uart in the UserPinConfig.h file.
@@ -178,10 +178,10 @@ Advanced Usage:
 
 Other than this any other serial device present (For Example: bluetooth serial, gadget serial etc.) can be used with this library.
 To do this user will have to create an object of class HardwareSerial with device path as the parameter.
-For example: to use bluetooth serial, use: 
+For example: to use bluetooth serial, use:
 
     HardwareSerial mySerial("/dev/rfcomm0");
-Now the mySerial object can be used with the library like 
+Now the mySerial object can be used with the library like
 
     mySerial.begin(115200);
 
@@ -195,7 +195,7 @@ Functions:
     requestFrom(uint8_t, uint8_t)
     requestFrom(int, int)
     size_t write(uint8_t)
-    size_t write(const uint8_t *, size_t)
+    size_t write(const uint8_t * size_t)
     int available(void)
     int read(void)
     int peek(void)
@@ -209,7 +209,7 @@ Above funtions have similar behaviour with the arduino environment (Refer to doc
 Though the board has 2 I2C ports, only I2C-2 will be used.
 The sendStop option in I2C is not yet implemented.
 BeagleBone Black can not be used in I2C slave mode.
-Example usage: 
+Example usage:
 
     Wire.begin();
 
@@ -222,7 +222,7 @@ Functions:
     void beginTransaction(SPISettings settings)
     uint8_t transfer(uint8_t data)
     uint16_t transfer16(uint16_t data)
-    void transfer(void *buf, size_t count)
+    void transfer(void * buf, size_t count)
     void endTransaction(void)
     void end()
     void setBitOrder(uint8_t bitOrder)
@@ -232,7 +232,7 @@ Functions:
 Above funtions have similar behaviour with the arduino environment (Refer to documentation on Arduino website).
 There are 2 SPI ports available.
 SPI-0 is defined as SPI.
-Example usage: 
+Example usage:
 
     SPI.begin();
 To use any SPI pin user should change the pin mode to spi in the UserPinConfig.h file.
@@ -244,7 +244,7 @@ Functions:
     void setClock(uint32_t clock_hz)
 
 Above function can be used to manually set the SPI clock.
-For Example: 
+For Example:
 
     SPI.setClock(4000000);
 
@@ -266,14 +266,14 @@ Instead it will create a virtual file in the file system and perform read write 
 
 #Compiling:
 A shell script with name build-source is present in the wiringBone directory which will help to compile and run the code.
-First make the script executable by typing 
+First make the script executable by typing
 
-    'chmod 755 build-source' 
+    'chmod 755 build-source'
 in the terminal from wiringBone directory.
 build-source will accept 3 cases: make, make-and-run and clean.
-For Example: type 
+For Example: type
 
-    ./build-source make-and-run 
+    ./build-source make-and-run
 to compile your code and run.
 
 #Stopping the program:
