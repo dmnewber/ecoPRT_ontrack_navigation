@@ -48,6 +48,11 @@
 #include "WCharacter.h"
 #include "WMath.h"
 
+#include "trackDetection.h"
+#include "alphaTestingInterface.h"
+#include "deviceInterface.h"
+#include "navigation.h"
+
 //#include "Wire.h"
 //#include "EEPROM.h"
 

@@ -25,23 +25,25 @@ vehicle is at.
 
 #include "trackDetection.h"
 
-int trackFeatureDetection(int forwardRight, int forwardLeft,
-                          int backRight, int backLeft){
+int trackFeatureDetection(int forwardRight, int forwardLeft, int backRight, int backLeft){
   /* If the forward sensors see more than two cm
      difference in distance from the back sensors
      then there is a fork. Return 2 for fork */
-  if(forwardRight > backRight+2 && forwardLeft > backLeft+2)
+  if(forwardRight > backRight+2 && forwardLeft > backLeft+2){
     return FORK;
+  }
   /* If the forward left sensor sees a distance much
      larger than the forward right distance, then the
      car is at a left hand merge */
-  else if(forwardLeft > forwardRight+5)
+  else if(forwardLeft > forwardRight+5){
     return MERGELEFT;
+  }
   /* If the forward right sensor sees a distance much
      larger than the forward left distance, then the
      car is at a right hand merge */
-  else if(forwardRight > forwardLeft+5)
+  else if(forwardRight > forwardLeft+5){
     return MERGERIGHT;
+  }
 
   return DEFAULT;
 }

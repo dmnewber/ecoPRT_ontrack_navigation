@@ -49,7 +49,7 @@ void delay(uint32_t duration)
   gettimeofday(&currentTime, NULL);
 
   delayLength.tv_sec  = duration / 1000;
-  delayLength.tv_usec = (duration % 1000) * 1000;  
+  delayLength.tv_usec = (duration % 1000) * 1000;
 
   timeradd(&currentTime, &delayLength, &endTime);
 
@@ -64,7 +64,7 @@ void delayMicroseconds(uint32_t duration)
   gettimeofday(&currentTime, NULL);
 
   delayLength.tv_sec  = duration / 1000000;
-  delayLength.tv_usec = duration % 1000000;  
+  delayLength.tv_usec = duration % 1000000;
 
   timeradd(&currentTime, &delayLength, &endTime);
 

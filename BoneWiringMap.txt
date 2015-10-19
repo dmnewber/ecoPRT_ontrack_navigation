@@ -1,0 +1,13 @@
+IR Sensor Mapping
+  Forward Left AIN0 - P9_39
+  Forward Right AIN1 - P9_38
+  Back Left AIN2 - P9_37
+  Back Right AIN3 - P9_36
+
+
+Motor Map
+  Motor PWM P9_41
+
+
+Steering Map
+  Servo PWM P9_27
