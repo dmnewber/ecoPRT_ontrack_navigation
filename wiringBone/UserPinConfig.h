@@ -89,6 +89,6 @@
 #define P9_30_MODE disabled		// gpio, pruout, pruin, spi
 #define P9_31_MODE disabled		// gpio, pruout, pruin, pwm, spi
 #define P9_41_MODE pruout		// gpio, pruout, pruin
-#define P9_42_MODE pruin		// gpio, pruout, pruin, pwm, spi
+#define P9_42_MODE gpio		// gpio, pruout, pruin, pwm, spi
 
 #endif

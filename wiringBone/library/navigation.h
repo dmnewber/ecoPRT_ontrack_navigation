@@ -11,7 +11,7 @@ int followRight(float x_front, float x_back);
 int followLeft(float x_front, float x_back);
 float calculateDistance(float value);
 void navigation(void);
-int trackStateHandling(int trackstate, int frontRight, int frontLeft,
-                       int backRight, int backLeft);
+int trackStateHandling(int trackstate, float frontRight, float frontLeft,
+                       float backRight, float backLeft);
 
 #endif

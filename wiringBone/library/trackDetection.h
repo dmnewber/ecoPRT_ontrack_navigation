@@ -12,7 +12,7 @@ Header file for trackDetection.cpp
 #define STRAIGHTFORKLEFT   5
 #define STRAIGHTFORKRIGHT  6
 
-int trackFeatureDetection(int forwardRight, int forwardLeft, int backRight, int backLeft);
+int trackFeatureDetection(float forwardRight, float forwardLeft, float backRight, float backLeft);
 
 
 #endif

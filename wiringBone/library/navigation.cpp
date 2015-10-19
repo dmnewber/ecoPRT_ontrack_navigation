@@ -27,8 +27,8 @@ void navigation(void){
 	}
 }
 
-int trackStateHandling(int trackstate, int frontRight, int frontLeft,
-                       int backRight, int backLeft){
+int trackStateHandling(int trackstate, float frontRight, float frontLeft,
+                       float backRight, float backLeft){
   int turn_angle, alternate=0;
 	/* If else construct to handle trackstate */
 	if(trackstate == DEFAULT){
@@ -38,6 +38,8 @@ int trackStateHandling(int trackstate, int frontRight, int frontLeft,
 	else if(trackstate == FORK){
 		/* Indicate with LED */
 		digitalWrite(P9_42, HIGH);
+    delay(300);
+    digitalWrite(P9_42, LOW);
 
 		/* This is where the index needs to come in */
 		if(alternate==0){
@@ -54,6 +56,16 @@ int trackStateHandling(int trackstate, int frontRight, int frontLeft,
 	else if(trackstate == MERGERIGHT){
 		turn_angle = followLeft(frontLeft,backLeft);
 	}
+  else if (trackstate == STRAIGHTFORKLEFT){
+    digitalWrite(P9_42, HIGH);
+    delay(300);
+    digitalWrite(P9_42, LOW);
+  }
+  else if(trackstate == STRAIGHTFORKRIGHT){
+    digitalWrite(P9_42, HIGH);
+    delay(300);
+    digitalWrite(P9_42, LOW);
+  }
 
 	return turn_angle;
 }
