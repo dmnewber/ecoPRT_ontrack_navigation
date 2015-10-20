@@ -13,6 +13,7 @@ void setup(){
 	analogReadResolution(10);
 	/* Output pin for fork detection LED */
 	pinMode(P9_42,OUTPUT);
+  delay(15000);
 }
 
 void loop(){

@@ -2,7 +2,7 @@
 
 
 void navigation(void){
-	int turn_angle, trackstate;
+	int turn_angle, trackstate, previous_trackstate, index=0;
   int irForwardLeft, irForwardRight, irBackLeft, irBackRight;	// IR reading globals
 	float backRight, frontRight, backLeft, frontLeft;
 	setCarSpeed(25);
@@ -20,51 +20,94 @@ void navigation(void){
     trackstate = trackFeatureDetection(frontRight,frontLeft,backRight,backLeft);
 
 		/* Calculate turn angle */
-		turn_angle = trackStateHandling(trackstate,frontRight,frontLeft,backRight,backLeft);
+		turn_angle = trackStateHandling(trackstate,&previous_trackstate,index,frontRight,frontLeft,backRight,backLeft);
 
 		/* Update servo */
 		setSteeringAngle(turn_angle);
 	}
 }
 
-int trackStateHandling(int trackstate, float frontRight, float frontLeft,
+int trackStateHandling(int trackstate, int *previous_trackstate, int index,
+                       float frontRight, float frontLeft,
                        float backRight, float backLeft){
-  int turn_angle, alternate=0;
+  int turn_angle;
+  int trackStateCheck=0;
+
+  /* Variable to check if the previous state was a fork */
+  trackStateCheck = (*previous_trackstate != FORK
+     && *previous_trackstate != STRAIGHTFORKLEFT
+     && *previous_trackstate != STRAIGHTFORKRIGHT);
+
 	/* If else construct to handle trackstate */
 	if(trackstate == DEFAULT){
 		/* Follow right wall by default */
 		turn_angle = followRight(frontRight,backRight);
-	}
-	else if(trackstate == FORK){
-		/* Indicate with LED */
-		digitalWrite(P9_42, HIGH);
-    delay(300);
-    digitalWrite(P9_42, LOW);
 
+    /* Set previous track state */
+    *previous_trackstate = DEFAULT;
+	}
+
+  /* Fork handling */
+	else if(trackstate == FORK){
+    /* Set previous track state */
+    *previous_trackstate = FORK;
 		/* This is where the index needs to come in */
-		if(alternate==0){
+		if(index==0 && trackStateCheck)
+    {
 			turn_angle = followRight(frontRight,backRight);
-			alternate = 1;
-		} else{
+			index = 1;
+		}
+    else if(trackStateCheck)
+    {
 			turn_angle = followLeft(frontLeft,backLeft);
-			alternate = 0;
+			index = 0;
 		}
 	}
+
+  /* Merge left handling */
 	else if(trackstate == MERGELEFT){
+    /* Follow right since left is empty space */
 		turn_angle = followRight(frontRight,backRight);
+
+    /* Set prvious track state */
+    *previous_trackstate = MERGELEFT;
 	}
+
+  /* Merge right handling */
 	else if(trackstate == MERGERIGHT){
+    /* Follow left since right is empty space */
 		turn_angle = followLeft(frontLeft,backLeft);
+
+    /* Set previous track state */
+    *previous_trackstate = MERGERIGHT;
 	}
+
+  /* Straight left fork handling */
   else if (trackstate == STRAIGHTFORKLEFT){
-    digitalWrite(P9_42, HIGH);
-    delay(300);
-    digitalWrite(P9_42, LOW);
+    /* Set previous track state */
+    *previous_trackstate = STRAIGHTFORKLEFT;
+    /* This is where the index needs to come in */
+    if(index==0 && trackStateCheck){
+      turn_angle = followRight(frontRight,backRight);
+      index = 1;
+    } else if(trackStateCheck){
+      turn_angle = followLeft(frontLeft,backLeft);
+      index = 0;
+    }
   }
+
+  /* Straight right fork handling */
   else if(trackstate == STRAIGHTFORKRIGHT){
-    digitalWrite(P9_42, HIGH);
-    delay(300);
-    digitalWrite(P9_42, LOW);
+    /* Set previous track state */
+    *previous_trackstate = STRAIGHTFORKRIGHT;
+    /* This is where the index needs to come in */
+    if(index==0 && trackStateCheck){
+      turn_angle = followRight(frontRight,backRight);
+      index = 1;
+    } else if(trackStateCheck){
+      turn_angle = followLeft(frontLeft,backLeft);
+      index = 0;
+    }
   }
 
 	return turn_angle;
