@@ -69,7 +69,7 @@
 #define P8_45_MODE disabled		// gpio, pruout, pruin
 #define P8_46_MODE disabled		// gpio, pruout, pruin
 
-#define P9_11_MODE disabled		// gpio, uart
+#define P9_11_MODE gpio		// gpio, uart
 #define P9_12_MODE disabled		// gpio
 #define P9_13_MODE disabled		// gpio, uart
 #define P9_14_MODE disabled		// gpio, pwm

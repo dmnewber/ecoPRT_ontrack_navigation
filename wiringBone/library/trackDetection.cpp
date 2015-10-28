@@ -25,38 +25,44 @@ vehicle is at.
 
 #include "trackDetection.h"
 
-int trackFeatureDetection(float forwardRight, float forwardLeft, float backRight, float backLeft){
+static int isRoughlyEqual(float left, float right){
+  if(abs(left-right)/max(left,right) < 0.1) return 1;
+  else return 0;
+}
+
+int trackFeatureDetection(float forwardRight, float forwardLeft,
+                          float backRight, float backLeft){
   /* If the forward sensors see more than two cm
      difference in distance from the back sensors
      then there is a fork. Return 2 for fork */
-  if(forwardRight > backRight+2 && forwardLeft > backLeft+2){
+  if(forwardRight > backRight+7 && forwardLeft > backLeft+7){
     return FORK;
-  }
-  /* If the forward left sensor sees a distance much
-     larger than the forward right distance, then the
-     car is at a left hand merge */
-  else if(forwardLeft > forwardRight+5){
-    return MERGELEFT;
-  }
-  /* If the forward right sensor sees a distance much
-     larger than the forward left distance, then the
-     car is at a right hand merge */
-  else if(forwardRight > forwardLeft+5){
-    return MERGERIGHT;
   }
   /* If all distances are equal aside from the front
      left distance, then the car is at a left hand
      straight fork */
-  else if(forwardRight == backLeft && backLeft == backRight
-          && forwardLeft > forwardRight+2){
+  else if(isRoughlyEqual(forwardRight,backLeft) && isRoughlyEqual(backLeft,backRight)
+          && forwardLeft > forwardRight+7){
     return STRAIGHTFORKLEFT;
   }
   /* If all distances are equal aside from the front
      right, then the car is at a right hand straight
      fork */
-  else if(forwardLeft == backRight && backRight == backLeft
-          && forwardRight > forwardLeft+2){
+  else if(isRoughlyEqual(forwardLeft,backRight) && isRoughlyEqual(backRight,backLeft)
+          && forwardRight > forwardLeft+7){
     return STRAIGHTFORKRIGHT;
+  }
+  /* If the forward left sensor sees a distance much
+     larger than the forward right distance, then the
+     car is at a left hand merge */
+  else if(forwardLeft > forwardRight+20){
+    return MERGELEFT;
+  }
+  /* If the forward right sensor sees a distance much
+     larger than the forward left distance, then the
+     car is at a right hand merge */
+  else if(forwardRight > forwardLeft+20){
+    return MERGERIGHT;
   }
 
 
