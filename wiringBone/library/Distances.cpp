@@ -1,24 +1,23 @@
 
-#include "wiring.h"
+#include "Wiring.h"
 
 
 void displayDistances(void)
 {
-  int irFrontLeft, irFrontRight, irBackLeft, irBackRight;	// IR reading globals
-	float backRight, frontRight, backLeft, frontLeft;
+  IR_Read ir;
+  Data_t data;
   int turn_angle;
   while(1){
-    readIR(&irFrontLeft,&irFrontRight,&irBackLeft,&irBackRight);
+    readIR(&ir);
 
-    convertTrueDistance(irFrontLeft,irFrontRight,irBackLeft,irBackRight,
-                        &frontLeft,&frontRight,&backLeft,&backRight);
+     convertTrueDistance(&ir,&data);
 
-    turn_angle = followLeft(frontLeft,backLeft);
+    turn_angle = followLeft(data.frontLeft,data.backLeft);
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-    printf("Front Left Distance: %f, Front Left Sensor: %d\n",frontLeft,irFrontLeft);
-    printf("Front Right Distance: %f, Front Right Sensor: %d\n",frontRight,irFrontRight);
-    printf("Back Left Distance: %f, Back Left Sensor: %d\n",backLeft,irBackLeft);
-    printf("Back Right Distance: %f, Back Right Sensor: %d\n",backRight,irBackRight);
+    printf("Front Left Distance: %f, Front Left Sensor: %d\n",data.frontLeft,ir.FrontLeft);
+    printf("Front Right Distance: %f, Front Right Sensor: %d\n",data.frontRight,ir.FrontRight);
+    printf("Back Left Distance: %f, Back Left Sensor: %d\n",data.backLeft,ir.BackLeft);
+    printf("Back Right Distance: %f, Back Right Sensor: %d\n",data.backRight,ir.BackRight);
     printf("Turn angle calculated: %d\n\n",turn_angle);
 
     delay(500);
@@ -28,19 +27,18 @@ void displayDistances(void)
 
 void averageDistances(void)
 {
-  int i,irFrontLeft, irFrontRight, irBackLeft, irBackRight;	// IR reading globals
-  float backRight, frontRight, backLeft, frontLeft;
-  int turn_angle;
+  IR_Read ir;
+  int i;
   float frAverage,flAverage,brAverage,blAverage;
   int frMax=0, frMin=5000, flMax=0, flMin=50000, brMax=0, brMin=50000, blMax=0, blMin=50000;
   int fr[500], fl[500], br[500],bl[500];
   for(i=0;i<500;i++)
   {
-    readIR(&irFrontLeft,&irFrontRight,&irBackLeft,&irBackRight);
-    fr[i] = irFrontRight;
-    fl[i] = irFrontLeft;
-    br[i] = irBackRight;
-    bl[i] = irBackLeft;
+    readIR(&ir);
+    fr[i] = ir.FrontRight;
+    fl[i] = ir.FrontLeft;
+    br[i] = ir.BackRight;
+    bl[i] = ir.BackLeft;
     delay(20);
   }
   for(i=0;i<500;i++)

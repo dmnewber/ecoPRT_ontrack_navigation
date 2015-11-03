@@ -1,13 +1,14 @@
 #ifndef NAVIGATION
 #define NAVIGATION
-
+#include "Wiring.h"
+#include "Ring.h"
 #define WALL_DISTANCE 	13
 #define TURN_DISTANCE 	13
 #define TURNING_FACTOR_BACK 	-15
 #define TURNING_FACTOR_FRONT  -15
 #define STRAIGHT_ANGLE 	1500
 
-typedef struct{
+typedef struct IR{
   int FrontLeft;
   int FrontRight;
   int BackLeft;
@@ -31,5 +32,6 @@ void setMergeLEDHigh();
 void setMergeLEDLow();
 void displayDistances();
 void averageDistances(void);
+void convertTrueDistance(IR_Read *ir, Data_t *data);
 
 #endif

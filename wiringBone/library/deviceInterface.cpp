@@ -1,5 +1,4 @@
-#include "Wiring.h"
-
+#include "deviceInterface.h"
 
 void setSteeringAngle(int pulsewidth){
 	/* Ensure the pulse width isn't too low */
@@ -25,10 +24,10 @@ void setCarSpeed(int speed){
 
 void readIR(IR_Read *ir){
 	/* Read forward left IR */
-	ir->ForwardLeft = analogRead(AIN0);
+	ir->FrontLeft = analogRead(AIN0);
 
 	/* Read forward right IR */
-	ir->ForwardRight = analogRead(AIN1);
+	ir->FrontRight = analogRead(AIN1);
 
 	/* Read back left IR */
 	ir->BackLeft = analogRead(AIN2);

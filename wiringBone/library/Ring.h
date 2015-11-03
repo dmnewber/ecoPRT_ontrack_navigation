@@ -23,7 +23,7 @@ typedef struct List {
 void listCreate(List_t **head);
 void listRead(List_t *head);
 void ringRead(List_t **head, int ringSize);
-void ringPush(List_t **head, int data);
+void ringPush(List_t **head, Data_t data);
 void ringInit(List_t **head, int ringSize);
 void getPrevious(List_t **current);
 

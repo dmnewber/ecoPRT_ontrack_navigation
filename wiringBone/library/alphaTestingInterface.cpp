@@ -1,9 +1,9 @@
 #include "Wiring.h"
+#include "navigation.h"
 
 void testingInterface(void){
-	int user, x, check=0;
-	float front,back;
-  int irForwardLeft, irForwardRight, irBackLeft, irBackRight;	// IR reading globals
+	int user=0, x=0, check=0;
+	float front=0,back=0;
 	printf("HELLLLOOOOOO Alpha Demo!\n");
 	delay(1500);
 	printf("This is the ecoPRT Ontrack Navigation Alpha Demo Interface!\n");
@@ -57,9 +57,9 @@ void testingInterface(void){
 			printf("the sensors to make sure they are actually outputting reasonable data!\n\n");
 			delay(5000);
 			for(int i=0;i<100;i++){
-        readIR(&irForwardLeft,&irForwardRight,&irBackLeft,&irBackRight);
-	 	                back = calculateDistance(irBackRight*2*1.8/1024);
-                		front = cos(0.5236)*calculateDistance(irForwardRight*2*1.8/1024);
+        //readIR(&irForwardLeft,&irForwardRight,&irBackLeft,&irBackRight);
+                    // ack = calculateDistance(irBackRight*2*1.8/1024);
+                		// front = cos(0.5236)*calculateDistance(irForwardRight*2*1.8/1024);
 				printf("\nForward right sensor: %f\nBack right sensor: %f\n",front, back);
 				delay(100);
 			}

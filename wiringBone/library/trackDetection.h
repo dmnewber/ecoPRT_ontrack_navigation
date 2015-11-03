@@ -5,7 +5,9 @@ Header file for trackDetection.cpp
 #ifndef TRACKDETECTION
 #define TRACKDETECTION
 
+
 #include "Ring.h"
+#include <stdio.h>
 
 #define DEFAULT            1
 #define FORK               2
@@ -17,8 +19,9 @@ Header file for trackDetection.cpp
 #define FOLLOWRIGHT 1
 #define FOLLOWLEFT  2
 
-#define COOLDOWN 1
+#define COOLDOWN 5
 
 int trackFeatureDetection(Data_t * data);
 void trackDetection(List_t *list, Data_t * data, int *cooldown);
+float maximum(float right, float left);
 #endif

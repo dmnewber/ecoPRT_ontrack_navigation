@@ -35,7 +35,7 @@ static float abs(float number)
 }
 
 /* Maximum float function */
-static float max(float right, float left)
+float maximum(float right, float left)
 {
   if(right<left) return left;
   else return right;
@@ -43,7 +43,7 @@ static float max(float right, float left)
 
 /* Minimum float function */
 static int isRoughlyEqual(float left, float right){
-  if(abs(left-right)/max(left,right) < 0.3) return 1;
+  if(abs(left-right)/maximum(left,right) < 0.3) return 1;
   else return 0;
 }
 
@@ -59,9 +59,9 @@ static int isMuchLarger(float one, float two)
     return 0;
   }
   /* If the difference between the two divided by
-     the max of the two is less than a threshold
+     the maximum of the two is less than a threshold
      then one is not much larger than two */
-  else if((one-two)/max(one,two) < 0.4)
+  else if((one-two)/maximum(one,two) < 0.25)
   {
     return 0;
   }
@@ -102,9 +102,10 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
 {
   /* if the cooldown count is still high, decrement and
   maintain the current track state */
-  if(*cooldown)
+  if(*cooldown>0)
   {
-    *cooldown--;
+    *cooldown -= 1;
+    printf("cooldown decrement: %d\n",*cooldown);
   }
   else
   {
@@ -116,6 +117,7 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
          isMuchLarger(list->data.frontLeft,list->data.backLeft))
       {
         /* Y fork confirmed */
+        printf("Y fork found\n");
         /* Consult the index */
         if(index==0)
         {
@@ -130,6 +132,7 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
 
         /* Set cooldown */
         *cooldown = COOLDOWN;
+        printf("cooldown set\n");
       }
     }
     else if(isMuchLarger(data->frontRight,data->backRight))
@@ -137,14 +140,16 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
       if(checkGradientRight(list,data))
       {
         /* If the gradient is large, then assume Merge */
+        printf("Right Merge\n");
         data->trackState = FOLLOWLEFT;
         *cooldown = COOLDOWN;
+        printf("cooldown set\n");
       }
       else if(isMuchLarger(list->data.frontRight,list->data.backRight))
       {
         /* If the previous set of right distances were also
            much larger, then assume a right fork */
-
+        printf("Straight Right Fork\n");
         /* Consult the index */
         if(index==0)
         {
@@ -159,6 +164,7 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
 
         /* Set cooldown */
         *cooldown = COOLDOWN;
+        printf("cooldown set\n");
       }
     }
     else if(isMuchLarger(data->frontLeft,data->backLeft))
@@ -166,14 +172,16 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
       if(checkGradientLeft(list,data))
       {
         /* If the gradient is large, then assume Merge */
-           data->trackState = FOLLOWRIGHT;
+        printf("Left Merge\n");
+        data->trackState = FOLLOWRIGHT;
         *cooldown = COOLDOWN;
+        printf("cooldown set\n");
       }
       else if(isMuchLarger(list->data.frontLeft,list->data.backLeft))
       {
         /* If the previous set of right distances were also
            much larger, then assume a left fork */
-
+        printf("Straight Left Fork\n");
         /* Consult the index */
         if(index==0)
         {
@@ -188,16 +196,14 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
 
           /* Set cooldown */
           *cooldown = COOLDOWN;
+          printf("cooldown set\n");
 
       }
     }
   }
+  printf("Track Detection Complete");
 }
 
-int main(void)
-{
-  return 0;
-}
 
 // void trackFeatureDetection(Data_t * data)
 // {

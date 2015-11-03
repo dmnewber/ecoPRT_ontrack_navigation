@@ -8,31 +8,31 @@
 void listCreate(List_t **head)
 {
   /* List_t structure place holder for new data */
-  List_t * new, *current=*head;
+  List_t *placehold, *current=*head;
 
   /* Allocate to memory and get pointer */
-  new = malloc(sizeof(List_t));
+  placehold = (List_t *)malloc(sizeof(List_t));
 
   /* If the head pointer is non-existent, put new in the head position */
   if(*head==NULL)
   {
-    new->next = NULL;
-    new->prev = NULL;
-    *head = new;
+    placehold->next = NULL;
+    placehold->prev = NULL;
+    *head = placehold;
   }
   else
   {
     /* Set placehold previous to the new struct */
-    current->prev = new;
+    current->prev = placehold;
 
     /* Set the address of head as the next node */
-    new->next = *head;
+    placehold->next = *head;
 
     /* Set the previous address as null */
-    new->prev = NULL;
+    placehold->prev = NULL;
 
     /* Set new as the new head */
-    *head = new;
+    *head = placehold;
   }
 
 }
@@ -47,7 +47,7 @@ void listRead(List_t *head)
   /* While read exists, print the data */
   for(read = head; read!=NULL; read=read->next)
   {
-    printf("%d\n",read->data);
+    printf("%f\n",read->data.frontRight);
   }
 }
 
@@ -83,7 +83,7 @@ void ringRead(List_t **head, int ringSize)
   /* Iterate backwards through the ring */
   for(i=0;i<ringSize;i++)
   {
-    printf("%d\n",read->Data);
+    printf("%f\n",read->data.frontRight);
     read = read->prev;
   }
 }
@@ -96,7 +96,7 @@ void ringPush(List_t **head, Data_t data)
   add = add->next;
 
   /* Add data to struct */
-  add->Data = data;
+  add->data = data;
 
   /* Update header */
   *head = add;
