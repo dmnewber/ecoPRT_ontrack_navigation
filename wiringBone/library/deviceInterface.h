@@ -1,8 +1,7 @@
 #ifndef DEVICE
 #define DEVICE
 
-void readIR(int *irForwardLeft, int *irForwardRight,
-            int *irBackLeft, int *irBackRight);
+void readIR(IR_Read *ir);
 void setSteeringAngle(int pulsewidth);
 void setCarSpeed(int speed);
 

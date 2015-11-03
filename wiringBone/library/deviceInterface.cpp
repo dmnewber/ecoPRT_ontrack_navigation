@@ -23,17 +23,16 @@ void setCarSpeed(int speed){
 }
 
 
-void readIR(int *irForwardLeft, int *irForwardRight,
-            int *irBackLeft, int *irBackRight){
+void readIR(IR_Read *ir){
 	/* Read forward left IR */
-	*irForwardLeft = analogRead(AIN0);
+	ir->ForwardLeft = analogRead(AIN0);
 
 	/* Read forward right IR */
-	*irForwardRight = analogRead(AIN1);
+	ir->ForwardRight = analogRead(AIN1);
 
 	/* Read back left IR */
-	*irBackLeft = analogRead(AIN2);
+	ir->BackLeft = analogRead(AIN2);
 
 	/* Read back right IR */
-	*irBackRight = analogRead(AIN3);
+	ir->BackRight = analogRead(AIN3);
 }

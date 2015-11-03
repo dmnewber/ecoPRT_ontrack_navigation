@@ -2,24 +2,30 @@
 
 
 
+static void convertTrueDistance(IR_Read *ir, Data_t *data){
+  data->backRight = calculateDistance(ir->BackRight);
+  data->frontRight = calculateDistance(ir->FrontRight);
+  data->backLeft = calculateDistance(ir->BackLeft);
+  data->frontLeft = calculateDistance(ir->FrontLeft);
+}
+
 void navigation(void){
-	int turn_angle, trackstate = DEFAULT, previous_trackstate, index=0;
-  int irFrontLeft, irFrontRight, irBackLeft, irBackRight;
-	float backRight, frontRight, backLeft, frontLeft;
+	int index=0;
+  IR_Read ir;
+	Data_t data;
+  List_t list;
+
+
   // delay(15000);
 	// setCarSpeed(15);
-	while(1){
+	while(1)
+  {
 		/* Read from IRs */
-		readIR(&irFrontLeft,&irFrontRight,&irBackLeft,&irBackRight);
+		readIR(&ir);
 
 		/* Convert to distance */
-		backRight = calculateDistance(irBackRight);
-		frontRight = cos(0.5236)*calculateDistance(irFrontRight);
-    backLeft = calculateDistance(irBackLeft);
-    frontLeft = cos(0.5236)*calculateDistance(irFrontLeft);
-    printf("\n");
-    printf("frontLeft: %f, frontRight: %f\n",frontLeft,frontRight);
-    printf("backLeft: %f, backRight: %f\n\n",backLeft,backRight);
+    convertFullDistance(&ir,&data);
+
     /* Determine track state */
     trackstate = trackFeatureDetection(frontRight,frontLeft,backRight,backLeft);
 
@@ -27,28 +33,135 @@ void navigation(void){
 		turn_angle = trackStateHandling(trackstate,&previous_trackstate,index,frontRight,frontLeft,backRight,backLeft);
 
 		/* Update servo */
-		// setSteeringAngle(turn_angle);
-    printf("turn angle: %d\n", turn_angle);
-    delay(700);
+	  setSteeringAngle(turn_angle);
 	}
 }
 
 
-void setForkLEDHigh(){
-  digitalWrite(P9_42,HIGH);
+
+void circleRight(void)
+{
+  IR_Read ir;
+	Data_t data;
+
+  delay(15000);
+  setCarSpeed(20);
+  while(1)
+  {
+    readIR(&ir);
+
+    convertFullDistance(&ir,&data);
+
+    data.turn_angle = followRight(data.frontRight,data.backRight);
+
+    setSteeringAngle(data.turn_angle);
+  }
 }
 
-void setForkLEDLow(){
-  digitalWrite(P9_42,LOW);
+
+void circleLeft(void)
+{
+  IR_Read ir;
+	Data_t data;
+  delay(15000);
+  setCarSpeed(20);
+  while(1)
+  {
+    readIR(&ir);
+
+    convertFullDistance(&ir,&data);
+
+    turn_angle = followLeft(data.frontLeft,data.backLeft);
+
+    setSteeringAngle(data.turn_angle);
+  }
 }
 
-void setMergeLEDHigh(){
-  digitalWrite(P9_11,HIGH);
+int followRight(float x_front, float x_back)
+{
+  	int turning_angle;
+    if(x_front > x_back)
+    {
+      turning_angle = STRAIGHT_ANGLE + (TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE-2))
+                      + TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE+2)));
+    }
+    else
+    {
+      turning_angle = STRAIGHT_ANGLE + (TURNING_FACTOR_FRONT*(x_front-TURN_DISTANCE)
+                      + TURNING_FACTOR_BACK*(x_back-TURN_DISTANCE));
+    }
+
+  	return turning_angle;
 }
 
-void setMergeLEDLow(){
-  digitalWrite(P9_11,LOW);
+
+
+int followLeft(float x_front, float x_back)
+{
+  	int turning_angle;
+    if(x_front > x_back)
+    {
+      turning_angle = STRAIGHT_ANGLE - (TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE-2))
+                      + TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE+2)));
+    }
+    else
+    {
+      turning_angle = STRAIGHT_ANGLE - (TURNING_FACTOR_FRONT*(x_front-TURN_DISTANCE)
+                      + TURNING_FACTOR_BACK*(x_back-TURN_DISTANCE));
+    }
+
+  	return turning_angle;
 }
+
+
+
+float calculateDistance(int value)
+{
+  float x;
+  /* If the value of the ADC is over 185, use regular algorithm */
+  if(value>=230)
+  {
+    x = value*3.6/1024;
+    //printf("usual");
+    return 2.6867*x*x-15.526*x+25.948;
+  }
+  /* If the value of the ADC is between 100 and 185, use a shallow
+     linear approximation */
+  else if(value >= 180 && value < 230)
+  {
+    //printf("0.1");
+    return -0.1*value+38;
+  }
+  /* If the value of the ADC is below 100, use an expedited linear
+     approximation */
+  else if(value >= 152 && value < 180)
+  {
+    //printf("1/7");
+    return -0.14285*value + 45.714;
+  }
+  else if(value >= 125 && value < 152)
+  {
+    //printf("0.222");
+    return -0.22222*value + 57.7775;
+  }
+  else
+  {
+    //printf("0.35");
+    return -0.35714*value + 74.64258;
+  }
+
+}
+
+
+void convertFullDistance(IR_Read *ir, Data_t * data)
+{
+  data->backRight = calculateDistance(ir->BackRight);
+  data->frontRight = cos(0.5236)*calculateDistance(ir->FrontRight);
+  data->backLeft = calculateDistance(ir->BackLeft);
+  data->frontLeft = cos(0.5236)*calculateDistance(ir->FrontLeft);
+}
+
+
 
 int trackStateHandling(int trackstate, int *previous_trackstate, int index,
                        float frontRight, float frontLeft,
@@ -152,111 +265,4 @@ int trackStateHandling(int trackstate, int *previous_trackstate, int index,
   }
 
 	return turn_angle;
-}
-
-
-
-
-int followRight(float x_front, float x_back){
-  	int turning_angle;
-  	turning_angle = STRAIGHT_ANGLE + (TURNING_FACTOR*(x_front-TURN_DISTANCE)
-                    + TURNING_FACTOR*(x_back-TURN_DISTANCE));
-  	return turning_angle;
-}
-
-
-
-int followLeft(float x_front, float x_back){
-  	int turning_angle;
-  	turning_angle = STRAIGHT_ANGLE - (TURNING_FACTOR*(x_front-TURN_DISTANCE)
-                    + TURNING_FACTOR*(x_back-TURN_DISTANCE));
-  	return turning_angle;
-}
-
-
-
-float calculateDistance(int value){
-  int x;
-  /* If the value of the ADC is over 185, use regular algorithm */
-  if(value>=185)
-  {
-    x = value*3.6/1024;
-    return 2.6867*x*x-15.526*x+25.948;
-  }
-  /* If the value of the ADC is between 100 and 185, use a shallow
-     linear approximation */
-  else if(value >= 100 && value < 185)
-  {
-    return -0.15294*value+45.29;
-  }
-  /* If the value of the ADC is below 100, use an expedited linear
-     approximation */
-  else if(value < 100)
-  {
-    return -0.4*value + 70;
-  }
-}
-
-
-
-
-
-void convertFullDistance(int irFrontLeft, int irFrontRight, int irBackLeft,
-                         int irBackRight, float *frontLeft, float * frontRight,
-                         float *backLeft, float * backRight){
-  *backRight = calculateDistance(irBackRight);
-  *frontRight = cos(0.5236)*calculateDistance(irFrontRight);
-  *backLeft = calculateDistance(irBackLeft);
-  *frontLeft = cos(0.5236)*calculateDistance(irFrontLeft);
-}
-
-
-
-
-void circleRight(void){
-  int irFrontLeft, irFrontRight, irBackLeft, irBackRight;	// IR reading globals
-	float backRight, frontRight, backLeft, frontLeft;
-  int turn_angle;
-  delay(15000);
-  setCarSpeed(20);
-  while(1){
-    readIR(&irFrontLeft,&irFrontRight,&irBackLeft,&irBackRight);
-
-    convertFullDistance(irFrontLeft,irFrontRight,irBackLeft,irBackRight,
-                        &frontLeft,&frontRight,&backLeft,&backRight);
-
-    turn_angle = followRight(frontRight,backRight);
-
-    setSteeringAngle(turn_angle);
-  }
-}
-
-
-void circleLeft(void){
-  int irFrontLeft, irFrontRight, irBackLeft, irBackRight;	// IR reading globals
-	float backRight, frontRight, backLeft, frontLeft;
-  int turn_angle;
-  delay(15000);
-  setCarSpeed(20);
-  while(1){
-    readIR(&irFrontLeft,&irFrontRight,&irBackLeft,&irBackRight);
-
-    convertFullDistance(irFrontLeft,irFrontRight,irBackLeft,irBackRight,
-                        &frontLeft,&frontRight,&backLeft,&backRight);
-
-    turn_angle = followLeft(frontLeft,backLeft);
-
-    setSteeringAngle(turn_angle);
-  }
-}
-
-#define FACTOR (10/0.5235)
-/* A more exact turn calculation based on trigonometry instead of a made up
-   algorithm that only sort of works */
-int trigometricTurnAngle(int forward, int back, int diag){
-  float angle;
-  /* Calculate the required turn angle using a derived trigometric function
-     and return it as a float */
-  angle = atan((forward-13)/(sin(0.5235)*diag));
-  return 1500 + angle*FACTOR;
 }

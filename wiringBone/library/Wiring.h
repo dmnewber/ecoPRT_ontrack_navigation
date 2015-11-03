@@ -52,6 +52,8 @@
 #include "alphaTestingInterface.h"
 #include "deviceInterface.h"
 #include "navigation.h"
+#include "Ring.h"
+#include "Distances.h"
 
 //#include "Wire.h"
 //#include "EEPROM.h"

@@ -17,5 +17,8 @@ void setup(){
 }
 
 void loop(){
-  circleRight();
+  //circleRight();
+  //displayDistances();
+  navigation();
+  //averageDistances();
 }
