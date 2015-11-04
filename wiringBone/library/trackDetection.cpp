@@ -22,10 +22,32 @@ Inputs:
 Using these inputs, the function determines what track feature the
 vehicle is at.
 */
-
+#include "Wiring.h"
 #include "trackDetection.h"
 #include <math.h>
 
+
+
+
+void setMergeLEDHigh()
+{
+  digitalWrite(P9_11, HIGH);
+}
+
+void setForkLEDHigh()
+{
+  digitalWrite(P9_42, HIGH);
+}
+
+void setMergeLEDLow()
+{
+  digitalWrite(P9_11,LOW);
+}
+
+void setForkLEDLow()
+{
+  digitalWrite(P9_42,LOW);
+}
 
 /* Absolute value function since math.h didn't seem to include one */
 static float abs(float number)
@@ -61,7 +83,7 @@ static int isMuchLarger(float one, float two)
   /* If the difference between the two divided by
      the maximum of the two is less than a threshold
      then one is not much larger than two */
-  else if((one-two)/maximum(one,two) < 0.35)
+  else if((one-two)/maximum(one,two) < THRESHOLD)
   {
     return 0;
   }
@@ -128,34 +150,37 @@ static int yForkDetect(List_t *list, Data_t *data)
 
 /* Global indexing variable used for keeping track of if the
    vehicle should go left or right at a fork */
-int index=0;
+int alternate=0;
 
 
 void trackDetection(List_t *list, Data_t * data, int *cooldown)
 {
   /* if the cooldown count is still high, decrement and
   maintain the current track state */
-  // if(*cooldown>0)
-  // {
-  //   *cooldown -= 1;
-  //   printf("cooldown decrement: %d\n",*cooldown);
-  // }
-  // else
+  if(*cooldown>=0)
   {
+    *cooldown -= 1;
+    //printf("cooldown decrement: %d\n",*cooldown);
+  }
+  else
+  {
+    setMergeLEDLow();
+    setForkLEDLow();
     /* Look for Y fork */
     if(yForkDetect(list,data))
     {
       /* Y fork confirmed */
-      printf("Y fork found\n");
+      // printf("Y fork found\n");
+      setForkLEDHigh();
       /* Consult the index */
-      if(index==0)
+      if(alternate==0)
       {
-        index = 1;
+        alternate = 1;
         data->trackState = FOLLOWRIGHT;
       }
       else
       {
-        index = 0;
+        alternate = 0;
         data->trackState = FOLLOWLEFT;
       }
 
@@ -169,9 +194,10 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
       if(checkGradientRight(list,data))
       {
         /* If the gradient is large, then assume Merge */
-        printf("Right Merge\n");
+        // printf("Right Merge\n");
         data->trackState = FOLLOWLEFT;
         *cooldown = COOLDOWN;
+        setMergeLEDHigh();
         //printf("cooldown set\n");
       }
       else if(isMuchLarger(list->data.frontRight,list->data.backRight) &&
@@ -180,21 +206,22 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
       {
         /* If the previous set of right distances were also
            much larger, then assume a right fork */
-        printf("Straight Right Fork\n");
+        // printf("Straight Right Fork\n");
         /* Consult the index */
-        if(index==0)
+        if(alternate==0)
         {
-          index = 1;
+          alternate = 1;
           data->trackState = FOLLOWRIGHT;
         }
         else
         {
-          index = 0;
+          alternate = 0;
           data->trackState = FOLLOWLEFT;
         }
 
         /* Set cooldown */
         *cooldown = COOLDOWN;
+        setForkLEDHigh();
         //printf("cooldown set\n");
       }
     }
@@ -204,9 +231,10 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
       if(checkGradientLeft(list,data))
       {
         /* If the gradient is large, then assume Merge */
-        printf("Left Merge\n");
+        // printf("Left Merge\n");
         data->trackState = FOLLOWRIGHT;
         *cooldown = COOLDOWN;
+        setMergeLEDHigh();
         //printf("cooldown set\n");
       }
       else if(isMuchLarger(list->data.frontLeft,list->data.backLeft) &&
@@ -215,28 +243,29 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
       {
         /* If the previous set of right distances were also
            much larger, then assume a left fork */
-        printf("Straight Left Fork\n");
+        // printf("Straight Left Fork\n");
         /* Consult the index */
-        if(index==0)
+        if(alternate==0)
         {
-          index = 1;
+          alternate = 1;
           data->trackState = FOLLOWRIGHT;
         }
         else
         {
-          index = 0;
+          alternate = 0;
           data->trackState = FOLLOWLEFT;
         }
 
           /* Set cooldown */
           *cooldown = COOLDOWN;
+          setForkLEDHigh();
           //printf("cooldown set\n");
 
       }
     }
 
   }
-  printf("Track Detection Complete");
+  // printf("Track Detection Complete");
 }
 
 

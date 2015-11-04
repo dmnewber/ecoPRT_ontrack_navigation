@@ -3,7 +3,7 @@
 #include "Wiring.h"
 #include "Ring.h"
 #define WALL_DISTANCE 	13
-#define TURN_DISTANCE 	13
+#define TURN_DISTANCE 	17
 #define TURNING_FACTOR_BACK 	-15
 #define TURNING_FACTOR_FRONT  -15
 #define STRAIGHT_ANGLE 	1500
@@ -26,10 +26,6 @@ void convertFullDistance(IR_Read *ir, Data_t * data);
 void circleRight(void);
 void circleLeft(void);
 int trigometricTurnAngle(int forward, int back, int diag);
-void setForkLEDHigh();
-void setForkLEDLow();
-void setMergeLEDHigh();
-void setMergeLEDLow();
 void displayDistances();
 void averageDistances(void);
 void convertTrueDistance(IR_Read *ir, Data_t *data);

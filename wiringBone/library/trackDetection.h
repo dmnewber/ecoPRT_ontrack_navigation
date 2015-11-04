@@ -19,9 +19,14 @@ Header file for trackDetection.cpp
 #define FOLLOWRIGHT 1
 #define FOLLOWLEFT  2
 
-#define COOLDOWN 5
+#define COOLDOWN 50
+#define THRESHOLD 0.55
 
 int trackFeatureDetection(Data_t * data);
 void trackDetection(List_t *list, Data_t * data, int *cooldown);
 float maximum(float right, float left);
+void setForkLEDHigh();
+void setForkLEDLow();
+void setMergeLEDHigh();
+void setMergeLEDLow();
 #endif

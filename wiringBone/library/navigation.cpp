@@ -1,7 +1,6 @@
 #include "Wiring.h"
 
 
-
 void convertTrueDistance(IR_Read *ir, Data_t *data)
 {
   data->backRight = calculateDistance(ir->BackRight);
@@ -34,6 +33,9 @@ void navigation(void){
 
     delay(20);
   }
+  delay(9000);
+  setCarSpeed(13);
+  printf("car speed set");
 	while(1)
   {
 		/* Read from IRs */
@@ -43,25 +45,32 @@ void navigation(void){
     convertFullDistance(&ir,&data);
 
     /* print out values for debug */
-    printf("Front Right Distance: %f\n",data.frontRight);
-    printf("Back Right Distance: %f\n",data.backRight);
-    printf("Front Left Distance: %f\n",data.frontLeft);
-    printf("Back Left Distance: %f\n",data.backLeft);
+    // printf("Front Right Distance: %f\n",data.frontRight);
+    // printf("Back Right Distance: %f\n",data.backRight);
+    // printf("Front Left Distance: %f\n",data.frontLeft);
+    // printf("Back Left Distance: %f\n",data.backLeft);
 
     /* Determine track state */
     trackDetection(list,&data,cooldown);
 
     ringPush(&list,data);
 
-		/* Calculate turn angle */
-		//turn_angle = trackStateHandling(trackstate,&previous_trackstate,index,frontRight,frontLeft,backRight,backLeft);
+    if(data.trackState==FOLLOWRIGHT)
+    {
+      data.turn_angle = followRight(data.frontRight,data.backRight);
+    }
+    else
+    {
+      data.turn_angle = followLeft(data.frontLeft,data.backLeft);
+    }
 
 		/* Update servo */
-	  //setSteeringAngle(turn_angle);
-    delay(1000);
-    if(data.trackState==FOLLOWRIGHT) printf("Follow right\n");
-    else printf("Follow left\n");
-    printf("Cooldown: %d\n",*cooldown);
+	  setSteeringAngle(data.turn_angle);
+
+    delay(20);
+    // if(data.trackState==FOLLOWRIGHT) turn_angle=trackStateHandling;
+    // else printf("Follow left\n");
+    // printf("Cooldown: %d\n",*cooldown);
 	}
 }
 
@@ -111,7 +120,7 @@ int followRight(float x_front, float x_back)
     if(x_front > x_back)
     {
       turning_angle = STRAIGHT_ANGLE + (TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE-2))
-                      + TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE+2)));
+                      + TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE)));
     }
     else
     {
@@ -130,7 +139,7 @@ int followLeft(float x_front, float x_back)
     if(x_front > x_back)
     {
       turning_angle = STRAIGHT_ANGLE - (TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE-2))
-                      + TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE+2)));
+                      + TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE)));
     }
     else
     {
@@ -191,94 +200,94 @@ void convertFullDistance(IR_Read *ir, Data_t * data)
 
 
 
-int trackStateHandling(int trackstate, int *previous_trackstate, int index,
-                       float frontRight, float frontLeft,
-                       float backRight, float backLeft){
-  int turn_angle;
-  int trackStateCheck=0;
-
-  /* Variable to check if the previous state was a fork */
-  trackStateCheck = (*previous_trackstate != FORK
-     && *previous_trackstate != STRAIGHTFORKLEFT
-     && *previous_trackstate != STRAIGHTFORKRIGHT);
-
-	/* If else construct to handle trackstate */
-	if(trackstate == DEFAULT){
-		/* Follow right wall by default */
-		turn_angle = followRight(frontRight,backRight);
-    /* Set previous track state */
-    *previous_trackstate = DEFAULT;
-    printf("Trackstate DEFAULT\n");
-	}
-
-  /* Fork handling */
-	else if(trackstate == FORK){
-    /* Set previous track state */
-    *previous_trackstate = FORK;
-		/* This is where the index needs to come in */
-		if(index==0 && trackStateCheck)
-    {
-			turn_angle = followRight(frontRight,backRight);
-			index = 1;
-		}
-    else if(trackStateCheck)
-    {
-			turn_angle = followLeft(frontLeft,backLeft);
-			index = 0;
-		}
-    printf("Trackstate FORK\n");
-	}
-
-  /* Merge left handling */
-	else if(trackstate == MERGELEFT){
-    /* Follow right since left is empty space */
-		turn_angle = followRight(frontRight,backRight);
-
-    /* Set prvious track state */
-    *previous_trackstate = MERGELEFT;
-
-    printf("Trackstate MERGELEFT\n");
-	}
-
-  /* Merge right handling */
-	else if(trackstate == MERGERIGHT){
-    /* Follow left since right is empty space */
-		turn_angle = followLeft(frontLeft,backLeft);
-
-    /* Set previous track state */
-    *previous_trackstate = MERGERIGHT;
-    printf("Trackstate MERGERIGHT\n");
-	}
-
-  /* Straight left fork handling */
-  else if (trackstate == STRAIGHTFORKLEFT){
-    /* Set previous track state */
-    *previous_trackstate = STRAIGHTFORKLEFT;
-    /* This is where the index needs to come in */
-    if(index==0 && trackStateCheck){
-      turn_angle = followRight(frontRight,backRight);
-      index = 1;
-    } else if(trackStateCheck){
-      turn_angle = followLeft(frontLeft,backLeft);
-      index = 0;
-    }
-    printf("Trackstate STRAIGHTFORKLEFT\n");
-  }
-
-  /* Straight right fork handling */
-  else if(trackstate == STRAIGHTFORKRIGHT){
-    /* Set previous track state */
-    *previous_trackstate = STRAIGHTFORKRIGHT;
-    /* This is where the index needs to come in */
-    if(index==0 && trackStateCheck){
-      turn_angle = followRight(frontRight,backRight);
-      index = 1;
-    } else if(trackStateCheck){
-      turn_angle = followLeft(frontLeft,backLeft);
-      index = 0;
-    }
-    printf("Trackstate STRAIGHTFORKRIGHT\n");
-  }
-
-	return turn_angle;
-}
+// int trackStateHandling(int trackstate, int *previous_trackstate, int index,
+//                        float frontRight, float frontLeft,
+//                        float backRight, float backLeft){
+//   int turn_angle;
+//   int trackStateCheck=0;
+//
+//   /* Variable to check if the previous state was a fork */
+//   trackStateCheck = (*previous_trackstate != FORK
+//      && *previous_trackstate != STRAIGHTFORKLEFT
+//      && *previous_trackstate != STRAIGHTFORKRIGHT);
+//
+// 	/* If else construct to handle trackstate */
+// 	if(trackstate == DEFAULT){
+// 		/* Follow right wall by default */
+// 		turn_angle = followRight(frontRight,backRight);
+//     /* Set previous track state */
+//     *previous_trackstate = DEFAULT;
+//     printf("Trackstate DEFAULT\n");
+// 	}
+//
+//   /* Fork handling */
+// 	else if(trackstate == FORK){
+//     /* Set previous track state */
+//     *previous_trackstate = FORK;
+// 		/* This is where the index needs to come in */
+// 		if(index==0 && trackStateCheck)
+//     {
+// 			turn_angle = followRight(frontRight,backRight);
+// 			index = 1;
+// 		}
+//     else if(trackStateCheck)
+//     {
+// 			turn_angle = followLeft(frontLeft,backLeft);
+// 			index = 0;
+// 		}
+//     printf("Trackstate FORK\n");
+// 	}
+//
+//   /* Merge left handling */
+// 	else if(trackstate == MERGELEFT){
+//     /* Follow right since left is empty space */
+// 		turn_angle = followRight(frontRight,backRight);
+//
+//     /* Set prvious track state */
+//     *previous_trackstate = MERGELEFT;
+//
+//     printf("Trackstate MERGELEFT\n");
+// 	}
+//
+//   /* Merge right handling */
+// 	else if(trackstate == MERGERIGHT){
+//     /* Follow left since right is empty space */
+// 		turn_angle = followLeft(frontLeft,backLeft);
+//
+//     /* Set previous track state */
+//     *previous_trackstate = MERGERIGHT;
+//     printf("Trackstate MERGERIGHT\n");
+// 	}
+//
+//   /* Straight left fork handling */
+//   else if (trackstate == STRAIGHTFORKLEFT){
+//     /* Set previous track state */
+//     *previous_trackstate = STRAIGHTFORKLEFT;
+//     /* This is where the index needs to come in */
+//     if(index==0 && trackStateCheck){
+//       turn_angle = followRight(frontRight,backRight);
+//       index = 1;
+//     } else if(trackStateCheck){
+//       turn_angle = followLeft(frontLeft,backLeft);
+//       index = 0;
+//     }
+//     printf("Trackstate STRAIGHTFORKLEFT\n");
+//   }
+//
+//   /* Straight right fork handling */
+//   else if(trackstate == STRAIGHTFORKRIGHT){
+//     /* Set previous track state */
+//     *previous_trackstate = STRAIGHTFORKRIGHT;
+//     /* This is where the index needs to come in */
+//     if(index==0 && trackStateCheck){
+//       turn_angle = followRight(frontRight,backRight);
+//       index = 1;
+//     } else if(trackStateCheck){
+//       turn_angle = followLeft(frontLeft,backLeft);
+//       index = 0;
+//     }
+//     printf("Trackstate STRAIGHTFORKRIGHT\n");
+//   }
+//
+// 	return turn_angle;
+// }
