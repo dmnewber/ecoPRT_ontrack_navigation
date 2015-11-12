@@ -1,6 +1,5 @@
 #include "Wiring.h"
 
-
 void convertTrueDistance(IR_Read *ir, Data_t *data)
 {
   data->backRight = calculateDistance(ir->BackRight);
@@ -33,9 +32,9 @@ void navigation(void){
 
     delay(20);
   }
+
   delay(9000);
-  setCarSpeed(13);
-  printf("car speed set");
+  setCarSpeed(12);
 	while(1)
   {
 		/* Read from IRs */
@@ -55,7 +54,7 @@ void navigation(void){
 
     ringPush(&list,data);
 
-    if(data.trackState==FOLLOWRIGHT)
+    if(data.turnState==FOLLOWRIGHT)
     {
       data.turn_angle = followRight(data.frontRight,data.backRight);
     }
@@ -67,7 +66,7 @@ void navigation(void){
 		/* Update servo */
 	  setSteeringAngle(data.turn_angle);
 
-    delay(20);
+    delay(12);
     // if(data.trackState==FOLLOWRIGHT) turn_angle=trackStateHandling;
     // else printf("Follow left\n");
     // printf("Cooldown: %d\n",*cooldown);
@@ -119,8 +118,8 @@ int followRight(float x_front, float x_back)
   	int turning_angle;
     if(x_front > x_back)
     {
-      turning_angle = STRAIGHT_ANGLE + (TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE-2))
-                      + TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE)));
+      turning_angle = STRAIGHT_ANGLE + (0.3*TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE))
+                      + 1.3*TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE)));
     }
     else
     {
@@ -138,8 +137,8 @@ int followLeft(float x_front, float x_back)
   	int turning_angle;
     if(x_front > x_back)
     {
-      turning_angle = STRAIGHT_ANGLE - (TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE-2))
-                      + TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE)));
+      turning_angle = STRAIGHT_ANGLE - (0.3*TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE))
+                      + 1.3*TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE)));
     }
     else
     {

@@ -8,7 +8,8 @@ typedef struct Data {
   float frontRight;       // distance seen on the front right
   float backLeft;         // distance seen on the back left
   float backRight;        // distance seen on the back right
-  int trackState;         // Essentially a follow left or right variable
+  int turnState;         // Essentially a follow left or right variable
+  int trackState;
   int turn_angle;         // turn angle that the car should go next
   int fork;               // check variable to debounce fork detection
 } Data_t;

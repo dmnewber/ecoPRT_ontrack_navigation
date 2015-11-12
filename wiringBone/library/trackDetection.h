@@ -13,13 +13,13 @@ Header file for trackDetection.cpp
 #define FORK               2
 #define MERGELEFT          3
 #define MERGERIGHT         4
-#define STRAIGHTFORKLEFT   5
-#define STRAIGHTFORKRIGHT  6
+#define LEFTFORK           5
+#define RIGHTFORK          6
 
 #define FOLLOWRIGHT 1
 #define FOLLOWLEFT  2
 
-#define COOLDOWN 50
+#define COOLDOWN 100
 #define THRESHOLD 0.55
 
 int trackFeatureDetection(Data_t * data);

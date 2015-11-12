@@ -27,7 +27,7 @@ vehicle is at.
 #include <math.h>
 
 
-
+FILE *fp;
 
 void setMergeLEDHigh()
 {
@@ -148,6 +148,25 @@ static int yForkDetect(List_t *list, Data_t *data)
   return 0;
 }
 
+/* function to determine if the last few states were forks, or merges */
+static int cooldown(List_t *list)
+{
+  int check = 1;
+  int i;
+  List_t *hold = list;
+  for(i=0;i<5;i++)
+  {
+    if(hold->data.trackState == RIGHTFORK || hold->data.trackState == LEFTFORK ||
+       hold->data.trackState == FORK || hold->data.trackState == MERGERIGHT ||
+       hold->data.trackState == MERGELEFT)
+    {
+      check = 0;
+    }
+    hold = hold->next;
+  }
+  return check;
+}
+
 /* Global indexing variable used for keeping track of if the
    vehicle should go left or right at a fork */
 int alternate=0;
@@ -176,17 +195,23 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
       if(alternate==0)
       {
         alternate = 1;
-        data->trackState = FOLLOWRIGHT;
+        data->turnState = FOLLOWRIGHT;
       }
       else
       {
         alternate = 0;
-        data->trackState = FOLLOWLEFT;
+        data->turnState = FOLLOWLEFT;
       }
 
+      data->trackState = FORK;
       /* Set cooldown */
       *cooldown = COOLDOWN;
       //printf("cooldown set\n");
+      fp = fopen("forkResults.txt","a+");
+      fprintf(fp,"Y fork detected!\n");
+      fprintf(fp,"front left = %f, front right = %f\n",data->frontLeft,data->frontRight);
+      fprintf(fp,"back left = %f, back right = %f\n\n",data->backLeft,data->backRight);
+      fclose(fp);
     }
     /* Look at the right side for merges and forks */
     else if(isMuchLarger(data->frontRight,data->backRight))
@@ -195,9 +220,15 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
       {
         /* If the gradient is large, then assume Merge */
         // printf("Right Merge\n");
-        data->trackState = FOLLOWLEFT;
+        data->turnState = FOLLOWLEFT;
         *cooldown = COOLDOWN;
         setMergeLEDHigh();
+        fp = fopen("forkResults.txt","a+");
+        fprintf(fp,"Right merge detected!\n");
+        fprintf(fp,"front left = %f, front right = %f\n",data->frontLeft,data->frontRight);
+        fprintf(fp,"back left = %f, back right = %f\n\n",data->backLeft,data->backRight);
+        fclose(fp);
+        data->trackState = MERGERIGHT;
         //printf("cooldown set\n");
       }
       else if(isMuchLarger(list->data.frontRight,list->data.backRight) &&
@@ -211,13 +242,19 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
         if(alternate==0)
         {
           alternate = 1;
-          data->trackState = FOLLOWRIGHT;
+          data->turnState = FOLLOWRIGHT;
         }
         else
         {
           alternate = 0;
-          data->trackState = FOLLOWLEFT;
+          data->turnState = FOLLOWLEFT;
         }
+        data->trackState = RIGHTFORK;
+        fp = fopen("forkResults.txt","a+");
+        fprintf(fp,"Right fork detected!\n");
+        fprintf(fp,"front left = %f, front right = %f\n",data->frontLeft,data->frontRight);
+        fprintf(fp,"back left = %f, back right = %f\n\n",data->backLeft,data->backRight);
+        fclose(fp);
 
         /* Set cooldown */
         *cooldown = COOLDOWN;
@@ -232,9 +269,16 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
       {
         /* If the gradient is large, then assume Merge */
         // printf("Left Merge\n");
-        data->trackState = FOLLOWRIGHT;
+        data->turnState = FOLLOWRIGHT;
         *cooldown = COOLDOWN;
         setMergeLEDHigh();
+        fp = fopen("forkResults.txt","a+");
+        fprintf(fp,"Left merge detected!\n");
+        fprintf(fp,"front left = %f, front right = %f\n",data->frontLeft,data->frontRight);
+        fprintf(fp,"back left = %f, back right = %f\n\n",data->backLeft,data->backRight);
+        fclose(fp);
+
+        data->trackState = MERGELEFT;
         //printf("cooldown set\n");
       }
       else if(isMuchLarger(list->data.frontLeft,list->data.backLeft) &&
@@ -248,14 +292,20 @@ void trackDetection(List_t *list, Data_t * data, int *cooldown)
         if(alternate==0)
         {
           alternate = 1;
-          data->trackState = FOLLOWRIGHT;
+          data->turnState = FOLLOWRIGHT;
         }
         else
         {
           alternate = 0;
-          data->trackState = FOLLOWLEFT;
+          data->turnState = FOLLOWLEFT;
         }
+        fp = fopen("forkResults.txt","a+");
+        fprintf(fp,"Left fork detected!\n");
+        fprintf(fp,"front left = %f, front right = %f\n",data->frontLeft,data->frontRight);
+        fprintf(fp,"back left = %f, back right = %f\n\n",data->backLeft,data->backRight);
+        fclose(fp);
 
+        data->trackState = LEFTFORK;
           /* Set cooldown */
           *cooldown = COOLDOWN;
           setForkLEDHigh();
