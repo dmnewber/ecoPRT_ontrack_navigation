@@ -10,7 +10,7 @@ void displayDistances(void)
   while(1){
     readIR(&ir);
 
-     convertTrueDistance(&ir,&data);
+     convertFullDistance(&ir,&data);
 
     turn_angle = followLeft(data.frontLeft,data.backLeft);
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");

@@ -2,11 +2,15 @@
 #define NAVIGATION
 #include "Wiring.h"
 #include "Ring.h"
-#define WALL_DISTANCE 	13
+//#define WALL_DISTANCE 	9
 #define TURN_DISTANCE 	17
 #define TURNING_FACTOR_BACK 	-15
-#define TURNING_FACTOR_FRONT  -15
+#define TURNING_FACTOR_FRONT  -12
 #define STRAIGHT_ANGLE 	1500
+
+#define RINGSIZE 60
+
+#define CARSPEED 11
 
 typedef struct IR{
   int FrontLeft;

@@ -14,10 +14,13 @@ void setup(){
 	/* Output pin for fork detection LED */
 	pinMode(P9_42,OUTPUT);
   pinMode(P9_11,OUTPUT);
+//  setMergeLEDHigh();
+//  setForkLEDHigh();
 }
 
 void loop(){
   //circleRight();
+  //circleLeft();
   //displayDistances();
   navigation();
   //averageDistances();
