@@ -35,3 +35,8 @@ void readIR(IR_Read *ir){
 	/* Read back right IR */
 	ir->BackRight = analogRead(AIN3);
 }
+
+void setSpeed()
+{
+  setCarSpeed(1.1/(analogRead(AIN4)*0.0115)*100);
+}

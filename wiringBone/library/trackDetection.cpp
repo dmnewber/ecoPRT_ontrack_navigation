@@ -247,6 +247,30 @@ void trackDetection(List_t *list, Data_t * data)
     data->trackState = FORK;
   }
 
+  if(data->frontLeft > 35 && data->backLeft > 35)
+  {
+    setMergeLEDHigh();
+
+    if(cooldown(list))
+    {
+      turnstate = FOLLOWRIGHT;
+    }
+
+    data->trackState = MERGELEFT;
+  }
+
+  if(data->frontRight > 35 && data->backRight > 35)
+  {
+    setMergeLEDHigh();
+
+    if(cooldown(list))
+    {
+      turnstate = FOLLOWLEFT;
+    }
+
+    data->trackState = MERGERIGHT;
+  }
+
   /* Look at the right side for merges and forks */
   // if(isMuchLarger(data->frontRight,data->backRight) && data->frontRight > 33 &&
   //    !isMuchLarger(data->frontLeft,data->backLeft))

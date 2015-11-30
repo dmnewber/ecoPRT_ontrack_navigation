@@ -58,10 +58,16 @@ void navigation(void){
     delay(20);
   }
 
-  delay(9000);
-  setCarSpeed(CARSPEED);
+  //delay(9000);
+  setSpeed();
+  i=0;
 	while(1)
   {
+    if(i>6000)
+    {
+      setSpeed();
+      i=0;
+    }
     data.trackState = DEFAULT;
     if(cooldown(list)) turnstate = STRAIGHT;
 		/* Read from IRs */
@@ -101,6 +107,7 @@ void navigation(void){
     // if(data.trackState==FOLLOWRIGHT) turn_angle=trackStateHandling;
     // else printf("Follow left\n");
     // printf("Cooldown: %d\n",*cooldown);
+    i+=1;
 	}
 }
 
