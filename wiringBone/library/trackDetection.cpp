@@ -164,17 +164,16 @@ int slightlyLargerThan(float one, float two)
 /* Function for determining if a y fork has been found. */
 static int yForkDetect(List_t *list, Data_t *data)
 {
+  List_t *head = list;
   /* If both current front distances are greater than both current
      back distances */
-  if(slightlyLargerThan(data->frontRight,data->backRight) &&
-     slightlyLargerThan(data->frontLeft,data->backLeft) ||
-     (data->frontRight > 30 && data->frontLeft > 30))
+  if(slightlyLargerThan(data->backRight,head->data.backRight) &&
+     slightlyLargerThan(data->backLeft,head->data.backLeft))
   {
     /* If both previous front distances are greater than both previous
        back distances */
-    if(slightlyLargerThan(list->data.frontRight,list->data.backRight) &&
-       slightlyLargerThan(list->data.frontLeft,list->data.backLeft) ||
-       (list->data.frontRight > 30 && list->data.frontLeft > 30))
+    if(slightlyLargerThan(head->data.backRight,head->next->data.backRight) &&
+       slightlyLargerThan(head->data.backLeft,head->next->data.backLeft))
     {
       /* Y Fork detected */
 
