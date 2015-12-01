@@ -38,5 +38,5 @@ void readIR(IR_Read *ir){
 
 void setSpeed()
 {
-  setCarSpeed(1.1/(analogRead(AIN4)*0.0115)*100);
+  setCarSpeed(1.2/(analogRead(AIN4)*0.0115)*100);
 }

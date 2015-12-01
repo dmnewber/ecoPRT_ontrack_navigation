@@ -152,7 +152,7 @@ static int checkGradientRight(List_t *list, Data_t *data)
    then one is slightly larger than two */
 int slightlyLargerThan(float one, float two)
 {
-  if((one-two)/max(one,two) > 0.07)
+  if((one-two)/max(one,two) > 0.04)
   {
     return 1;
   }
@@ -246,19 +246,7 @@ void trackDetection(List_t *list, Data_t * data)
     data->trackState = FORK;
   }
 
-  if(data->frontLeft > 35 && data->backLeft > 35)
-  {
-    setMergeLEDHigh();
-
-    if(cooldown(list))
-    {
-      turnstate = FOLLOWRIGHT;
-    }
-
-    data->trackState = MERGELEFT;
-  }
-
-  if(data->frontRight > 35 && data->backRight > 35)
+  if(isMuchLarger(data->backRight,data->backLeft))
   {
     setMergeLEDHigh();
 
@@ -267,10 +255,10 @@ void trackDetection(List_t *list, Data_t * data)
       turnstate = FOLLOWLEFT;
     }
 
-    data->trackState = MERGERIGHT;
+    data->trackState = MERGELEFT;
   }
 
-  if(isRoughlyEqual(data->frontRight,data->backRight) && isMuchLarger(data->frontLeft,data->backLeft))
+  if(isMuchLarger(data->backLeft,data->backRight))
   {
     setMergeLEDHigh();
 
@@ -279,20 +267,9 @@ void trackDetection(List_t *list, Data_t * data)
       turnstate = FOLLOWRIGHT;
     }
 
-    data->trackState = MERGELEFT;
-  }
-
-  if(isRoughlyEqual(data->frontLeft,data->backLeft) && isMuchLarger(data->frontRight,data->backRight))
-  {
-    setMergeLEDHigh();
-
-    if(cooldown(list))
-    {
-      turnstate = FOLLOWLEFT;
-    }
-
     data->trackState = MERGERIGHT;
   }
+
 
   /* Look at the right side for merges and forks */
   // if(isMuchLarger(data->frontRight,data->backRight) && data->frontRight > 33 &&
