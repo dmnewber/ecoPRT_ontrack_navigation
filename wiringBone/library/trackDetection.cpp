@@ -152,7 +152,7 @@ static int checkGradientRight(List_t *list, Data_t *data)
    then one is slightly larger than two */
 int slightlyLargerThan(float one, float two)
 {
-  if((one-two)/max(one,two) > 0.1)
+  if((one-two)/max(one,two) > 0.07)
   {
     return 1;
   }
@@ -167,24 +167,25 @@ static int yForkDetect(List_t *list, Data_t *data)
   /* If both current front distances are greater than both current
      back distances */
   if(slightlyLargerThan(data->frontRight,data->backRight) &&
-     slightlyLargerThan(data->frontLeft,data->backLeft))
+     slightlyLargerThan(data->frontLeft,data->backLeft) ||
+     (data->frontRight > 30 && data->frontLeft > 30))
   {
     /* If both previous front distances are greater than both previous
        back distances */
-    // if(slightlyLargerThan(list->data.frontRight,list->data.backRight) &&
-    //    slightlyLargerThan(list->data.frontLeft,list->data.backLeft))
-    // {
-    //   /* Y Fork detected */
-    //   return 1;
+    if(slightlyLargerThan(list->data.frontRight,list->data.backRight) &&
+       slightlyLargerThan(list->data.frontLeft,list->data.backLeft) ||
+       (list->data.frontRight > 30 && list->data.frontLeft > 30))
+    {
+      /* Y Fork detected */
+
     return 1;
-    //}
+    }
   }
   /* Otherwise, no Y fork */
   return 0;
 }
 
 
-int cool = 0;
 
 /* function to determine if the last few states were forks, or merges */
 int cooldown(List_t *list)
@@ -241,7 +242,6 @@ void trackDetection(List_t *list, Data_t * data)
           alternate = 0;
           turnstate = FOLLOWLEFT;
         }
-        cool = 500;
       }
 
     data->trackState = FORK;
@@ -260,6 +260,30 @@ void trackDetection(List_t *list, Data_t * data)
   }
 
   if(data->frontRight > 35 && data->backRight > 35)
+  {
+    setMergeLEDHigh();
+
+    if(cooldown(list))
+    {
+      turnstate = FOLLOWLEFT;
+    }
+
+    data->trackState = MERGERIGHT;
+  }
+
+  if(isRoughlyEqual(data->frontRight,data->backRight) && isMuchLarger(data->frontLeft,data->backLeft))
+  {
+    setMergeLEDHigh();
+
+    if(cooldown(list))
+    {
+      turnstate = FOLLOWRIGHT;
+    }
+
+    data->trackState = MERGELEFT;
+  }
+
+  if(isRoughlyEqual(data->frontLeft,data->backLeft) && isMuchLarger(data->frontRight,data->backRight))
   {
     setMergeLEDHigh();
 

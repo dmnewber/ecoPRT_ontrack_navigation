@@ -34,7 +34,6 @@ static int straight(Data_t *current, Data_t *previous)
 }
 
 int turnstate;
-extern int cool;
 
 void navigation(void){
 	int i;
@@ -63,7 +62,7 @@ void navigation(void){
   i=0;
 	while(1)
   {
-    if(i>6000)
+    if(i>12000)
     {
       setSpeed();
       i=0;
@@ -278,7 +277,7 @@ float calculateDistance(int value)
 void convertFullDistance(IR_Read *ir, Data_t * data)
 {
   data->backRight = calculateDistance(ir->BackRight);
-  data->frontRight = 0.82*calculateDistance(ir->FrontRight);
+  data->frontRight = 0.8*calculateDistance(ir->FrontRight);
   data->backLeft = calculateDistance(ir->BackLeft);
   data->frontLeft = 0.8*calculateDistance(ir->FrontLeft);
 }
