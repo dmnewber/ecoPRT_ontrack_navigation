@@ -14,11 +14,7 @@ void setSteeringAngle(int pulsewidth){
 
 void setCarSpeed(int speed){
 	/* Set car speed */
-	int i = 0;
-	for(i=0;i<=speed;i++){
-		setDutyPercentage(P9_41,i);
-		delay(3);
-	}
+		setPulseWidthns(P9_21,speed);
 }
 
 
@@ -38,5 +34,5 @@ void readIR(IR_Read *ir){
 
 void setSpeed()
 {
-  setCarSpeed(1.2/(analogRead(AIN4)*0.0115)*100);
+  setCarSpeed(50000*(1.2/(analogRead(AIN4)*0.015)));
 }

@@ -62,7 +62,7 @@ void navigation(void){
   i=0;
 	while(1)
   {
-    if(i>12000)
+    if(i>500)
     {
       setSpeed();
       i=0;

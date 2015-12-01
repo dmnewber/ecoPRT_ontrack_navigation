@@ -8,8 +8,7 @@
 void setup(){
 	setTimePeriod(P9_27,SERVO_PERIOD);
 	setPulseWidth(P9_27,1500);
-	setFrequency(P9_41,MOTOR_FREQUENCY);
-	setDutyPercentage(P9_41,0);
+	setTimePeriodns(P9_21,50000);
 	analogReadResolution(10);
 	/* Output pin for fork detection LED */
 	pinMode(P9_42,OUTPUT);
@@ -25,5 +24,5 @@ void loop(){
   //displayDistances();
   navigation();
   //averageDistances();
-
+  //printf("read: %d\n",analogRead(AIN4));
 }

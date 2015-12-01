@@ -21,7 +21,7 @@ Header file for trackDetection.cpp
 #define STRAIGHT 3
 
 #define COOLDOWN 100
-#define THRESHOLD 0.6
+#define THRESHOLD 0.67
 #define GRADIENT 1
 
 int trackFeatureDetection(Data_t * data);
