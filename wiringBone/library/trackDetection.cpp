@@ -147,12 +147,91 @@ static int checkGradientRight(List_t *list, Data_t *data)
 
 }
 
+/* Overall gradient function for detecting merges and forks */
+static int gradient(List_t *list, Data_t *data, int select)
+{
+  List_t *head;
+  float average = 0;
+  int i;
+
+  /* Code for left gradient */
+  if(select==1)
+  {
+    head = list;
+
+    for(i=0;i<3;i++)
+    {
+      /* Sum for an average of the past three distances */
+      average+=head->data.frontLeft;
+
+      head = head->next;
+    }
+
+    average = average/3;
+
+    return ((data->frontLeft - average)/average > 1.5);
+  }
+
+  /* Code for right gradient */
+  if(select==2)
+  {
+    head = list;
+
+    for(i=0;i<3;i++)
+    {
+      /*Sum for an average of the past three distances */
+      average += head->data.frontRight;
+
+      head = head->next;
+    }
+
+    average = average/3;
+
+    return((data->frontRight - average)/average > 1.5);
+  }
+
+  /* Code for left fork portion */
+  if(select==3)
+  {
+    head = list;
+
+    for(i=0;i<3;i++)
+    {
+      average += head->data.backLeft;
+
+      head = head->next;
+    }
+
+    average = average/3;
+
+    return ((data->backLeft - average)/average > 0.3);
+  }
+
+  /* Code for right fork portion */
+  if(select==4)
+  {
+    head = list;
+
+    for(i=0;i<3;i++)
+    {
+      average += head->data.backRight;
+      head = head->next;
+    }
+
+    average = average/3;
+
+    return ((data->backRight - average)/average > 0.3);
+  }
+
+  return 0;
+}
+
 /* Function for seeing if a number is slightly larger than the other.
    If the difference between one and two is more than 10% of one,
    then one is slightly larger than two */
 int slightlyLargerThan(float one, float two)
 {
-  if((one-two)/max(one,two) > 0.04)
+  if((one-two)/max(one,two) > 0.08)
   {
     return 1;
   }
@@ -223,7 +302,7 @@ void trackDetection(List_t *list, Data_t * data)
     // setMergeLEDLow();
     // setCarSpeed(CARSPEED);
 
-  if(yForkDetect(list,data))
+  if(gradient(list,data,3) && gradient(list,data,4))
   {
       /* Y fork confirmed */
       // printf("Y fork found\n");
@@ -231,6 +310,7 @@ void trackDetection(List_t *list, Data_t * data)
       /* Consult the index */
       if(cooldown(list))
       {
+        //setCarSpeed(0);
         if(alternate==0)
         {
           alternate = 1;
@@ -246,7 +326,7 @@ void trackDetection(List_t *list, Data_t * data)
     data->trackState = FORK;
   }
 
-  if(isMuchLarger(data->backRight,data->backLeft))
+  else if(gradient(list,data,2) && !gradient(list,data,1))
   {
     setMergeLEDHigh();
 
@@ -255,10 +335,10 @@ void trackDetection(List_t *list, Data_t * data)
       turnstate = FOLLOWLEFT;
     }
 
-    data->trackState = MERGELEFT;
+    data->trackState = MERGERIGHT;
   }
 
-  if(isMuchLarger(data->backLeft,data->backRight))
+  else if(gradient(list,data,1) && !gradient(list,data,2))
   {
     setMergeLEDHigh();
 
@@ -267,7 +347,7 @@ void trackDetection(List_t *list, Data_t * data)
       turnstate = FOLLOWRIGHT;
     }
 
-    data->trackState = MERGERIGHT;
+    data->trackState = MERGELEFT;
   }
 
 

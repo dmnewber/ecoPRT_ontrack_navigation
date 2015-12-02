@@ -13,6 +13,7 @@ void setup(){
 	/* Output pin for fork detection LED */
 	pinMode(P9_42,OUTPUT);
   pinMode(P9_11,OUTPUT);
+  pinMode(P8_7,OUTPUT);
 //  setMergeLEDHigh();
 //  setForkLEDHigh();
 }

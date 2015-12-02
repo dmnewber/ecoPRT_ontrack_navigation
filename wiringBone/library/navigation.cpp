@@ -40,6 +40,7 @@ void navigation(void){
   IR_Read ir;
 	Data_t data;
   List_t *list=NULL;
+  FILE *fp;
   ringInit(&list,RINGSIZE);
 
   /* Get initial readings */
@@ -62,7 +63,7 @@ void navigation(void){
   i=0;
 	while(1)
   {
-    if(i>500)
+    if(i>200)
     {
       setSpeed();
       i=0;
@@ -75,14 +76,30 @@ void navigation(void){
 		/* Convert to distance */
     convertFullDistance(&ir,&data);
 
-    /* print out values for debug */
-    // printf("Front Right Distance: %f\n",data.frontRight);
-    // printf("Back Right Distance: %f\n",data.backRight);
-    // printf("Front Left Distance: %f\n",data.frontLeft);
-    // printf("Back Left Distance: %f\n",data.backLeft);
 
     /* Determine track state */
     trackDetection(list,&data);
+
+    fp = fopen("nav.txt","a");
+    if(data.trackState==FORK)
+    {
+      fprintf(fp,"Fork detected\n");
+    }
+    else if(data.trackState==MERGELEFT)
+    {
+      fprintf(fp,"Left merge detected\n");
+    }
+    else if(data.trackState==MERGERIGHT)
+    {
+      fprintf(fp,"Right merge detected\n");
+    }
+    fprintf(fp,"Front left distance: %f, Front right distance: %f\nBack left distance:  %f, Back right distance:  %f\nTurn angle: %d\n\n",data.frontLeft,data.frontRight,data.backLeft,data.backRight,data.turn_angle);
+    fclose(fp);
+
+    if(analogRead(AIN4) < 780)
+    {
+      digitalWrite(P8_7,HIGH);
+    }
 
     ringPush(&list,data);
 
@@ -102,7 +119,15 @@ void navigation(void){
 		/* Update servo */
 	  setSteeringAngle(data.turn_angle);
 
-    delay(20);
+    // printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    // printf("Front Left Distance: %f, Front Left Sensor: %d\n",data.frontLeft,ir.FrontLeft);
+    // printf("Front Right Distance: %f, Front Right Sensor: %d\n",data.frontRight,ir.FrontRight);
+    // printf("Back Left Distance: %f, Back Left Sensor: %d\n",data.backLeft,ir.BackLeft);
+    // printf("Back Right Distance: %f, Back Right Sensor: %d\n",data.backRight,ir.BackRight);
+    // printf("Turn angle calculated: %d\n\n",data.turn_angle);
+
+
+    delay(50);
     // if(data.trackState==FOLLOWRIGHT) turn_angle=trackStateHandling;
     // else printf("Follow left\n");
     // printf("Cooldown: %d\n",*cooldown);
