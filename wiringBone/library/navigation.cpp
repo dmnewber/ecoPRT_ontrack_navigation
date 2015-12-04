@@ -11,36 +11,36 @@ void convertTrueDistance(IR_Read *ir, Data_t *data)
 
 static int right(Data_t *current, Data_t *previous)
 {
-  return STRAIGHT_ANGLE + (TURNING_FACTOR_BACK*(current->backRight-TURN_DISTANCE)
-                           + TURNING_FACTOR_FRONT*(current->frontRight-TURN_DISTANCE)
-                           + TURNING_FACTOR_FRONT*((current->frontRight-TURN_DISTANCE) - (previous->frontRight-TURN_DISTANCE)));
+  return STRAIGHT_ANGLE - (1.5*TURNING_FACTOR_BACK*(current->backRight-TURN_DISTANCE)
+                           + 0.7*TURNING_FACTOR_FRONT*(current->frontRight-TURN_DISTANCE)
+                           + 0.8*TURNING_FACTOR_FRONT*((current->frontRight-TURN_DISTANCE) - (previous->frontRight-TURN_DISTANCE)));
 }
 
 static int left(Data_t *current, Data_t *previous)
 {
-  return STRAIGHT_ANGLE - (TURNING_FACTOR_BACK*(current->backLeft-TURN_DISTANCE)
-                           + TURNING_FACTOR_FRONT*(current->frontLeft-TURN_DISTANCE)
-                           + TURNING_FACTOR_FRONT*((current->frontLeft-TURN_DISTANCE) - (previous->frontLeft-TURN_DISTANCE)));
+  return STRAIGHT_ANGLE + (1.5*TURNING_FACTOR_BACK*(current->backLeft-TURN_DISTANCE)
+                           + 0.7*TURNING_FACTOR_FRONT*(current->frontLeft-TURN_DISTANCE)
+                           + 0.4*TURNING_FACTOR_FRONT*((current->frontLeft-TURN_DISTANCE) - (previous->frontLeft-TURN_DISTANCE)));
 }
 
 static int straight(Data_t *current, Data_t *previous)
 {
-  return STRAIGHT_ANGLE - (0.4*TURNING_FACTOR_BACK*(current->backLeft-TURN_DISTANCE)
+  return STRAIGHT_ANGLE + (0.4*TURNING_FACTOR_BACK*(current->backLeft-TURN_DISTANCE)
                            + 0.4*TURNING_FACTOR_FRONT*(current->frontLeft-TURN_DISTANCE)
                            + 0.4*TURNING_FACTOR_FRONT*((current->frontLeft-TURN_DISTANCE) - (previous->frontLeft-TURN_DISTANCE)))
-                        + (0.4*TURNING_FACTOR_BACK*(current->backRight-TURN_DISTANCE)
+                        - (0.4*TURNING_FACTOR_BACK*(current->backRight-TURN_DISTANCE)
                            + 0.4*TURNING_FACTOR_FRONT*(current->frontRight-TURN_DISTANCE)
                            + 0.4*TURNING_FACTOR_FRONT*((current->frontRight-TURN_DISTANCE) - (previous->frontRight-TURN_DISTANCE)));
 }
 
 int turnstate;
+FILE *fp;
 
 void navigation(void){
 	int i;
   IR_Read ir;
 	Data_t data;
   List_t *list=NULL;
-  FILE *fp;
   ringInit(&list,RINGSIZE);
 
   /* Get initial readings */
@@ -63,7 +63,7 @@ void navigation(void){
   i=0;
 	while(1)
   {
-    if(i>200)
+    if(i>80)
     {
       setSpeed();
       i=0;
@@ -80,25 +80,13 @@ void navigation(void){
     /* Determine track state */
     trackDetection(list,&data);
 
-    fp = fopen("nav.txt","a");
-    if(data.trackState==FORK)
+    if(analogRead(AIN4)*0.0114 < 10)
     {
-      fprintf(fp,"Fork detected\n");
+      digitalWrite(P8_9,HIGH);
     }
-    else if(data.trackState==MERGELEFT)
+    else
     {
-      fprintf(fp,"Left merge detected\n");
-    }
-    else if(data.trackState==MERGERIGHT)
-    {
-      fprintf(fp,"Right merge detected\n");
-    }
-    fprintf(fp,"Front left distance: %f, Front right distance: %f\nBack left distance:  %f, Back right distance:  %f\nTurn angle: %d\n\n",data.frontLeft,data.frontRight,data.backLeft,data.backRight,data.turn_angle);
-    fclose(fp);
-
-    if(analogRead(AIN4) < 780)
-    {
-      digitalWrite(P8_7,HIGH);
+      digitalWrite(P8_9,LOW);
     }
 
     ringPush(&list,data);
@@ -127,7 +115,7 @@ void navigation(void){
     // printf("Turn angle calculated: %d\n\n",data.turn_angle);
 
 
-    delay(50);
+    delay(60);
     // if(data.trackState==FOLLOWRIGHT) turn_angle=trackStateHandling;
     // else printf("Follow left\n");
     // printf("Cooldown: %d\n",*cooldown);
@@ -159,105 +147,68 @@ void circleRight(void)
     delay(20);
   }
 
-  delay(15000);
-  setCarSpeed(13);
+  setSpeed();
   while(1)
   {
+    if(i>80)
+    {
+      setSpeed();
+      i=0;
+    }
+
     readIR(&ir);
 
     convertFullDistance(&ir,&data);
 
     // data.turn_angle = followRight(data.frontRight,data.backRight);
-    data.turn_angle = straight(&data,&list->data);
-    setSteeringAngle(data.turn_angle);
-
-    ringPush(&list,data);
-  }
-}
-
-
-void circleLeft(void)
-{
-  IR_Read ir;
-	Data_t data;
-  List_t *list=NULL;
-  int i;
-  ringInit(&list,RINGSIZE);
-
-  /* Get initial readings */
-  for(i=0;i<RINGSIZE;i++)
-  {
-    /* Read from IRs */
-		readIR(&ir);
-
-		/* Convert to distance */
-    convertFullDistance(&ir,&data);
-
-    /* Push data onto the ring */
-    ringPush(&list,data);
-
-    delay(20);
-  }
-
-  delay(15000);
-  setCarSpeed(13);
-  while(1)
-  {
-    readIR(&ir);
-
-    convertFullDistance(&ir,&data);
-
     data.turn_angle = left(&data,&list->data);
     setSteeringAngle(data.turn_angle);
 
     ringPush(&list,data);
+    i++;
+    delay(60);
   }
 }
+//
+//
+// void circleLeft(void)
+// {
+//   IR_Read ir;
+// 	Data_t data;
+//   List_t *list=NULL;
+//   int i;
+//   ringInit(&list,RINGSIZE);
+//
+//   /* Get initial readings */
+//   for(i=0;i<RINGSIZE;i++)
+//   {
+//     /* Read from IRs */
+// 		readIR(&ir);
+//
+// 		/* Convert to distance */
+//     convertFullDistance(&ir,&data);
+//
+//     /* Push data onto the ring */
+//     ringPush(&list,data);
+//
+//     delay(20);
+//   }
+//
+//   delay(15000);
+//   setCarSpeed(13);
+//   while(1)
+//   {
+//     readIR(&ir);
+//
+//     convertFullDistance(&ir,&data);
+//
+//     data.turn_angle = left(&data,&list->data);
+//     setSteeringAngle(data.turn_angle);
+//
+//     ringPush(&list,data);
+//   }
+// }
 
-int followRight(float x_front, float x_back)
-{
-  	int turning_angle;
-    if(x_front > x_back)
-    {
-      turning_angle = STRAIGHT_ANGLE + (0.4*TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE))
-                                     + 1.3*TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE)));
-    }
-    else if(slightlyLargerThan(x_back,x_front))
-    {
-      turning_angle = STRAIGHT_ANGLE + (1*TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE+5))
-                                     + 1.3*TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE)));
-    }
-    else
-    {
-      turning_angle = STRAIGHT_ANGLE + (TURNING_FACTOR_FRONT*(x_front-TURN_DISTANCE)
-                                     + TURNING_FACTOR_BACK*(x_back-TURN_DISTANCE));
-    }
-
-    return turning_angle;
-}
-
-
-int followLeft(float x_front, float x_back)
-{
-  	int turning_angle;
-    if(x_front > x_back)
-    {
-      turning_angle = STRAIGHT_ANGLE - (0.4*TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE))
-                                     + 1.3*TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE)));
-    }
-    else if(slightlyLargerThan(x_back,x_front))
-    {
-      turning_angle = STRAIGHT_ANGLE - (1*TURNING_FACTOR_FRONT*(x_front-(TURN_DISTANCE+5))
-                                     + 1.3*TURNING_FACTOR_BACK*(x_back-(TURN_DISTANCE)));
-    }
-    else
-    {
-      turning_angle = STRAIGHT_ANGLE - (TURNING_FACTOR_FRONT*(x_front-TURN_DISTANCE)
-                                     + TURNING_FACTOR_BACK*(x_back-TURN_DISTANCE));
-    }
-
-    return turning_angle;
-}
 
 
 

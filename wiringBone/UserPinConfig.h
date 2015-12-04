@@ -28,11 +28,11 @@
 #define P8_4_MODE  disabled		// gpio
 #define P8_5_MODE  disabled		// gpio
 #define P8_6_MODE  disabled		// gpio
-#define P8_7_MODE  gpio			// gpio
+#define P8_7_MODE  gpio			// gpio purple fork
 #define P8_8_MODE  disabled		// gpio
-#define P8_9_MODE  disabled		// gpio
+#define P8_9_MODE  gpio		// gpio red battery
 #define P8_10_MODE disabled		// gpio
-#define P8_11_MODE disabled		// gpio, pruout
+#define P8_11_MODE gpio		// gpio, pruout green merge
 #define P8_12_MODE disabled		// gpio, pruout
 #define P8_13_MODE pwm			// gpio, pwm
 #define P8_14_MODE disabled		// gpio

@@ -27,125 +27,28 @@ vehicle is at.
 #include <math.h>
 
 
-FILE *fp;
 
 void setMergeLEDHigh()
 {
-  digitalWrite(P9_11, HIGH);
+  digitalWrite(P8_11, HIGH);
 }
 
 void setForkLEDHigh()
 {
-  digitalWrite(P9_42, HIGH);
+  digitalWrite(P8_7, HIGH);
 }
 
 void setMergeLEDLow()
 {
-  digitalWrite(P9_11,LOW);
+  digitalWrite(P8_11,LOW);
 }
 
 void setForkLEDLow()
 {
-  digitalWrite(P9_42,LOW);
+  digitalWrite(P8_7,LOW);
 }
 
-/* Absolute value function since math.h didn't seem to include one */
-static float abs(float number)
-{
-  if(number<0) return -number;
-  else return number;
-}
-
-/* Maximum float function */
-float maximum(float right, float left)
-{
-  if(right<left) return left;
-  else return right;
-}
-
-/* Minimum float function */
-static int isRoughlyEqual(float left, float right){
-  if(abs(left-right)/maximum(left,right) < 0.1) return 1;
-  else return 0;
-}
-
-/* Function for determining if a number is much greater (40%)
-   than the other. Returns true if the first number is much
-   greater than the second */
-static int isMuchLarger(float one, float two)
-{
-  /* If one is not greater than two
-     it is not much larger than two */
-  if(!(one>two))
-  {
-    return 0;
-  }
-  /* If the difference between the two divided by
-     the maximum of the two is less than a threshold
-     then one is not much larger than two */
-  else if((one-two)/maximum(one,two) < THRESHOLD)
-  {
-    return 0;
-  }
-  /* All checks have been passed, one must be
-     larger than two */
-  return 1;
-}
-
-
-/* Function for checking the gradient on the left side.
-   If the difference between the front and back distance
-   now is much larger than it was before, return true */
-static int checkGradientLeft(List_t *list, Data_t *data)
-{
-  float currentDifference, previousDifference;
-  currentDifference = data->frontLeft - data->backLeft;
-  previousDifference = list->data.frontLeft - list->data.backLeft;
-  /* If one is not greater than two
-     it is not much larger than two */
-  if(!(currentDifference>previousDifference))
-  {
-    return 0;
-  }
-  /* If the difference between the two divided by
-     the maximum of the two is less than a threshold
-     then one is not much larger than two */
-  else if((currentDifference-previousDifference)/maximum(currentDifference,previousDifference) < GRADIENT)
-  {
-    return 0;
-  }
-  /* All checks have been passed, one must be
-     larger than two */
-  return 1;
-
-}
-
-/* Function for checking the gradient on the right side.
-   If the difference between the front and back distance
-   now is much larger than it was before, return true */
-static int checkGradientRight(List_t *list, Data_t *data)
-{
-  float currentDifference, previousDifference;
-  currentDifference = data->frontRight - data->backRight;
-  previousDifference = list->data.frontRight - list->data.backRight;
-  /* If one is not greater than two
-     it is not much larger than two */
-  if(!(currentDifference>previousDifference))
-  {
-    return 0;
-  }
-  /* If the difference between the two divided by
-     the maximum of the two is less than a threshold
-     then one is not much larger than two */
-  else if((currentDifference-previousDifference)/maximum(currentDifference,previousDifference) < GRADIENT)
-  {
-    return 0;
-  }
-  /* All checks have been passed, one must be
-     larger than two */
-  return 1;
-
-}
+extern FILE *fp;
 
 /* Overall gradient function for detecting merges and forks */
 static int gradient(List_t *list, Data_t *data, int select)
@@ -153,7 +56,6 @@ static int gradient(List_t *list, Data_t *data, int select)
   List_t *head;
   float average = 0;
   int i;
-
   /* Code for left gradient */
   if(select==1)
   {
@@ -164,12 +66,13 @@ static int gradient(List_t *list, Data_t *data, int select)
       /* Sum for an average of the past three distances */
       average+=head->data.frontLeft;
 
-      head = head->next;
+      head = head->prev;
     }
 
     average = average/3;
 
-    return ((data->frontLeft - average)/average > 1.5);
+
+    return ((data->frontLeft - average)/average > 1.7);
   }
 
   /* Code for right gradient */
@@ -182,12 +85,12 @@ static int gradient(List_t *list, Data_t *data, int select)
       /*Sum for an average of the past three distances */
       average += head->data.frontRight;
 
-      head = head->next;
+      head = head->prev;
     }
 
     average = average/3;
 
-    return((data->frontRight - average)/average > 1.5);
+    return((data->frontRight - average)/average > 1.7);
   }
 
   /* Code for left fork portion */
@@ -199,12 +102,12 @@ static int gradient(List_t *list, Data_t *data, int select)
     {
       average += head->data.backLeft;
 
-      head = head->next;
+      head = head->prev;
     }
 
     average = average/3;
 
-    return ((data->backLeft - average)/average > 0.3);
+    return ((data->backLeft - average)/average > 0.15);
   }
 
   /* Code for right fork portion */
@@ -215,53 +118,19 @@ static int gradient(List_t *list, Data_t *data, int select)
     for(i=0;i<3;i++)
     {
       average += head->data.backRight;
-      head = head->next;
+      head = head->prev;
     }
 
     average = average/3;
 
-    return ((data->backRight - average)/average > 0.3);
+    return ((data->backRight - average)/average > 0.15);
   }
 
   return 0;
 }
 
-/* Function for seeing if a number is slightly larger than the other.
-   If the difference between one and two is more than 10% of one,
-   then one is slightly larger than two */
-int slightlyLargerThan(float one, float two)
-{
-  if((one-two)/max(one,two) > 0.08)
-  {
-    return 1;
-  }
-  return 0;
-}
 
 
-
-/* Function for determining if a y fork has been found. */
-static int yForkDetect(List_t *list, Data_t *data)
-{
-  List_t *head = list;
-  /* If both current front distances are greater than both current
-     back distances */
-  if(slightlyLargerThan(data->backRight,head->data.backRight) &&
-     slightlyLargerThan(data->backLeft,head->data.backLeft))
-  {
-    /* If both previous front distances are greater than both previous
-       back distances */
-    if(slightlyLargerThan(head->data.backRight,head->next->data.backRight) &&
-       slightlyLargerThan(head->data.backLeft,head->next->data.backLeft))
-    {
-      /* Y Fork detected */
-
-    return 1;
-    }
-  }
-  /* Otherwise, no Y fork */
-  return 0;
-}
 
 
 
@@ -326,7 +195,7 @@ void trackDetection(List_t *list, Data_t * data)
     data->trackState = FORK;
   }
 
-  else if(gradient(list,data,2) && !gradient(list,data,1))
+  if(gradient(list,data,2))
   {
     setMergeLEDHigh();
 
@@ -338,7 +207,7 @@ void trackDetection(List_t *list, Data_t * data)
     data->trackState = MERGERIGHT;
   }
 
-  else if(gradient(list,data,1) && !gradient(list,data,2))
+  if(gradient(list,data,1))
   {
     setMergeLEDHigh();
 

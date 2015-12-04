@@ -5,7 +5,7 @@ void setSteeringAngle(int pulsewidth){
 	pulsewidth = max(1200,pulsewidth);
 
 	/* Ensure the pulse width isn't too high */
-	pulsewidth = min(1750,pulsewidth);
+	pulsewidth = min(1700,pulsewidth);
 
 	/* Set steering pulsewidth */
 	setPulseWidth(P9_27,pulsewidth);
@@ -34,5 +34,5 @@ void readIR(IR_Read *ir){
 
 void setSpeed()
 {
-  setCarSpeed(50000*(1.3/(analogRead(AIN4)*0.015)));
+  setCarSpeed(50000*(1.05/(analogRead(AIN4)*0.0114)));
 }

@@ -12,7 +12,6 @@ void displayDistances(void)
 
      convertFullDistance(&ir,&data);
 
-    turn_angle = followLeft(data.frontLeft,data.backLeft);
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     printf("Front Left Distance: %f, Front Left Sensor: %d\n",data.frontLeft,ir.FrontLeft);
     printf("Front Right Distance: %f, Front Right Sensor: %d\n",data.frontRight,ir.FrontRight);
