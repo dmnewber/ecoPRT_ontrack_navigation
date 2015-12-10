@@ -8,7 +8,7 @@
 #define TURNING_FACTOR_FRONT  -15
 #define STRAIGHT_ANGLE 	1500
 
-#define RINGSIZE 35
+#define RINGSIZE 25
 
 #define CARSPEED 11
 

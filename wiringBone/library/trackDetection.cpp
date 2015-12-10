@@ -72,7 +72,7 @@ static int gradient(List_t *list, Data_t *data, int select)
     average = average/3;
 
 
-    return ((data->frontLeft - average)/average > 1.7);
+    return ((data->frontLeft - average)/average > 1.65);
   }
 
   /* Code for right gradient */
@@ -90,7 +90,7 @@ static int gradient(List_t *list, Data_t *data, int select)
 
     average = average/3;
 
-    return((data->frontRight - average)/average > 1.7);
+    return((data->frontRight - average)/average > 1.65);
   }
 
   /* Code for left fork portion */
